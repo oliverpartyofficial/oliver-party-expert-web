@@ -1,0 +1,10 @@
+{
+  "name": "Oliver Party Expert Web",
+  "install": "npm ci",
+  "terminals": [
+    {
+      "name": "dev",
+      "command": "npm run dev"
+    }
+  ]
+}
