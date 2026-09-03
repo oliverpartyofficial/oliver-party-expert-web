@@ -27,18 +27,25 @@ export async function Location() {
       <p className="mt-4 text-sm text-muted">
         {t("areas")}: {COMPANY.areaServed.join(" · ")}
       </p>
-      <details className="mt-8 border border-[var(--line)] bg-paper">
-        <summary className="cursor-pointer px-4 py-3 text-sm text-gold-dark">
-          {t("openMap")}
-        </summary>
+      <div className="mt-8 overflow-hidden rounded-lg border border-[var(--line)]">
         <iframe
           title="Oliver Party Expert map"
           src={MAPS}
-          className="h-80 w-full"
+          className="h-80 w-full md:h-96"
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
         />
-      </details>
+      </div>
+      <a
+        href={`https://www.google.com/maps?q=${encodeURIComponent(
+          `${COMPANY.address.street}, ${COMPANY.address.postalCode} ${COMPANY.address.locality}`
+        )}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-3 inline-block text-sm text-gold-dark underline-offset-2 hover:underline"
+      >
+        {t("openMap")} ↗
+      </a>
     </section>
   );
 }
