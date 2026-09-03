@@ -11,14 +11,11 @@ export function Gallery() {
   const locale = useLocale();
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start", loop: true });
   const [playing, setPlaying] = useState<string | null>(null);
-  const [canScroll, setCanScroll] = useState({ prev: false, next: false });
+  const [selected, setSelected] = useState(0);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
-    setCanScroll({
-      prev: emblaApi.canScrollPrev(),
-      next: emblaApi.canScrollNext(),
-    });
+    setSelected(emblaApi.selectedScrollSnap());
   }, [emblaApi]);
 
   useEffect(() => {
@@ -45,22 +42,23 @@ export function Gallery() {
             </h2>
             <p className="mt-4 text-muted">{t("lead")}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-3">
+            <span className="text-xs tracking-[0.2em] text-muted">
+              {selected + 1} / {GALLERY_ITEMS.length}
+            </span>
             <button
               type="button"
               aria-label={t("prev")}
-              disabled={!canScroll.prev}
               onClick={() => emblaApi?.scrollPrev()}
-              className="rounded-full border border-[var(--line)] bg-paper px-4 py-2 text-sm text-espresso disabled:opacity-40"
+              className="min-h-11 min-w-11 rounded-full bg-gold px-4 py-2 text-lg text-espresso shadow-sm"
             >
               ←
             </button>
             <button
               type="button"
               aria-label={t("next")}
-              disabled={!canScroll.next}
               onClick={() => emblaApi?.scrollNext()}
-              className="rounded-full border border-[var(--line)] bg-paper px-4 py-2 text-sm text-espresso disabled:opacity-40"
+              className="min-h-11 min-w-11 rounded-full bg-gold px-4 py-2 text-lg text-espresso shadow-sm"
             >
               →
             </button>
