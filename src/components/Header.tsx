@@ -55,14 +55,6 @@ export function Header({ locale }: { locale: AppLocale }) {
             </svg>
             <span className="hidden sm:inline">{COMPANY.phoneDisplay}</span>
           </a>
-          <Link
-            href={pathname}
-            locale={other}
-            className="rounded-full border border-[var(--line)] px-3 py-1 text-xs tracking-[0.2em]"
-            aria-label={t("language")}
-          >
-            {t("language")}
-          </Link>
           <a
             href="#contacto"
             className="hidden rounded-full bg-espresso px-4 py-2 text-sm text-ivory md:inline-block"
@@ -79,6 +71,14 @@ export function Header({ locale }: { locale: AppLocale }) {
             <span className="block h-0.5 w-6 bg-espresso" />
             <span className="mt-1 block h-0.5 w-6 bg-espresso" />
           </button>
+          <Link
+            href={pathname}
+            locale={other}
+            className="rounded-full border border-[var(--line)] px-3 py-1 text-xs tracking-[0.2em]"
+            aria-label={t("language")}
+          >
+            {t("language")}
+          </Link>
         </div>
       </div>
       {open ? (
