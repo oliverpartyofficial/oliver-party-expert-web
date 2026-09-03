@@ -65,6 +65,9 @@ export function buildPageMetadata(locale: AppLocale): Metadata {
       images: ["/media/og.jpg"],
     },
     robots: { index: true, follow: true },
-    icons: { icon: "/logo.svg" },
+    icons: {
+      icon: [{ url: "/logo.jpg", type: "image/jpeg" }],
+      apple: [{ url: "/apple-touch-icon.png", type: "image/png" }],
+    },
   };
 }
