@@ -4,20 +4,68 @@ import { GALLERY_ITEMS } from "@/content/catalog";
 import { COMPANY } from "@/content/company";
 import useEmblaCarousel from "embla-carousel-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function Gallery() {
   const t = useTranslations("gallery");
   const locale = useLocale();
-  const [emblaRef] = useEmblaCarousel({ align: "start", loop: true });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start", loop: true });
   const [playing, setPlaying] = useState<string | null>(null);
+  const [canScroll, setCanScroll] = useState({ prev: false, next: false });
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setCanScroll({
+      prev: emblaApi.canScrollPrev(),
+      next: emblaApi.canScrollNext(),
+    });
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+    return () => {
+      emblaApi.off("select", onSelect);
+      emblaApi.off("reInit", onSelect);
+    };
+  }, [emblaApi, onSelect]);
 
   return (
     <section id="galeria" className="bg-cream py-24">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
-        <p className="text-xs uppercase tracking-[0.35em] text-gold-dark">{t("kicker")}</p>
-        <h2 className="mt-3 font-serif text-4xl text-espresso md:text-5xl">{t("title")}</h2>
-        <p className="mt-4 max-w-2xl text-muted">{t("lead")}</p>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-2xl">
+            <p className="text-xs uppercase tracking-[0.35em] text-gold-dark">
+              {t("kicker")}
+            </p>
+            <h2 className="mt-3 font-serif text-4xl text-espresso md:text-5xl">
+              {t("title")}
+            </h2>
+            <p className="mt-4 text-muted">{t("lead")}</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              aria-label={t("prev")}
+              disabled={!canScroll.prev}
+              onClick={() => emblaApi?.scrollPrev()}
+              className="rounded-full border border-[var(--line)] bg-paper px-4 py-2 text-sm text-espresso disabled:opacity-40"
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              aria-label={t("next")}
+              disabled={!canScroll.next}
+              onClick={() => emblaApi?.scrollNext()}
+              className="rounded-full border border-[var(--line)] bg-paper px-4 py-2 text-sm text-espresso disabled:opacity-40"
+            >
+              →
+            </button>
+          </div>
+        </div>
         <div className="mt-10 overflow-hidden" ref={emblaRef}>
           <div className="flex gap-4">
             {GALLERY_ITEMS.map((item) => {
