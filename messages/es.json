@@ -71,10 +71,9 @@
   "gallery": {
     "kicker": "Historias reales",
     "title": "Fiestas que se quedan",
-    "lead": "Vídeos de Instagram y Facebook. Se cargan solo cuando pulsáis reproducir.",
-    "play": "Ver en {network}",
-    "facebook": "Facebook",
-    "instagram": "Instagram"
+    "lead": "Fotos de eventos reales de Oliver Party Expert. Los vídeos los publicamos en redes; más adelante también en YouTube.",
+    "playYoutube": "Ver en YouTube",
+    "morePhotos": "Más fotos y reels en"
   },
   "reviews": {
     "kicker": "Parejas que ya confiaron",
