@@ -1,0 +1,159 @@
+{
+  "meta": {
+    "title": "DJ y animación para bodas en Málaga | Oliver Party Expert",
+    "description": "DJ, iluminación, food trucks, crepes, carrito de helados, fotomatón y neones para bodas y eventos en Vélez-Málaga, Málaga y la Costa del Sol."
+  },
+  "nav": {
+    "services": "Servicios",
+    "gallery": "Galería",
+    "reviews": "Opiniones",
+    "about": "Oliver",
+    "location": "Ubicación",
+    "contact": "Contacto",
+    "quote": "Solicitar presupuesto",
+    "language": "EN"
+  },
+  "hero": {
+    "kicker": "Vélez-Málaga · Costa del Sol",
+    "title": "DJ y experiencias para bodas en Málaga",
+    "lead": "Música, luz, food trucks, crepes, helados y fotomatón para que vuestra fiesta se recuerde. Español e inglés, parejas locales e internacionales.",
+    "cta": "Solicitar presupuesto",
+    "secondary": "Ver servicios"
+  },
+  "services": {
+    "kicker": "Lo que ofrecemos",
+    "title": "Todo para vuestra boda, de un solo equipo",
+    "lead": "DJ, iluminación, food trucks y atrezzo con transporte y montaje. Descargad el dossier de cada servicio.",
+    "download": "Descargar dossier",
+    "items": {
+      "dj": {
+        "title": "DJ y sonido",
+        "text": "Ceremonia, cóctel, banquete y fiesta. Más de 15 años en salones como Parque del Río, Cortijo Bravo y Hotel La Viñuela. Repertorio abierto: pop, latina, disco, flamenco y lo que pidáis."
+      },
+      "lighting": {
+        "title": "Iluminación y efectos",
+        "text": "Juego de luces, máquina de humo y fuego frío para el baile de los novios y una pista que se ve de diez en las fotos."
+      },
+      "food-trucks": {
+        "title": "Food trucks",
+        "text": "Food trucks y horse truck para sorprender en el cóctel o la barra libre. Montaje incluido."
+      },
+      "crepes": {
+        "title": "Creperie",
+        "text": "Estación de crepes dulces para invitados de todas las edades. Un extra que siempre funciona."
+      },
+      "ice-cream": {
+        "title": "Carrito de helados",
+        "text": "Helados artesanos, más de 50 sabores y triciclo de helados para el cóctel o el jardín."
+      },
+      "photobooth": {
+        "title": "Fotomatón",
+        "text": "Fotomatón con atrezzo, neón y álbum para dedicatorias. Recuerdo digital para la pareja."
+      },
+      "neons": {
+        "title": "Neones y letras LOVE",
+        "text": "Neón corazón, LOVE, photocalls e iniciales. Decoración que llena el feed y el salón."
+      },
+      "furniture": {
+        "title": "Mobiliario chill-out",
+        "text": "Sofás, sillones, escritorios, barras iluminadas y rincones para crear ambiente."
+      },
+      "popcorn": {
+        "title": "Palomitas y algodón",
+        "text": "Máquina de palomitas y algodón de azúcar: éxito entre peques y no tan peques."
+      },
+      "beer-tricycle": {
+        "title": "Triciclo de cerveza",
+        "text": "Carrito y triciclo de cerveza para la barra libre, con estilo vintage."
+      }
+    }
+  },
+  "gallery": {
+    "kicker": "Historias reales",
+    "title": "Fiestas que se quedan",
+    "lead": "Vídeos de Instagram y Facebook. Se cargan solo cuando pulsáis reproducir.",
+    "play": "Ver en {network}",
+    "facebook": "Facebook",
+    "instagram": "Instagram"
+  },
+  "reviews": {
+    "kicker": "Parejas que ya confiaron",
+    "title": "Opiniones de bodas en Málaga"
+  },
+  "about": {
+    "kicker": "Antes Olisound",
+    "title": "Oliver Party Expert",
+    "lead": "DJ animador con más de 20 años de trayectoria, de los 80 y 90 hasta ahora. Ferias, discotecas y un equipo que se implica como familia.",
+    "p1": "Moderna iluminación, concursos, coreografías y sorpresas para que el día no se parezca a ninguna otra boda.",
+    "p2": "Trabajamos en Vélez-Málaga y nos desplazamos por Málaga, Marbella, Granada, Almería, Cádiz y Sevilla."
+  },
+  "location": {
+    "kicker": "Dónde estamos",
+    "title": "Vélez-Málaga, corazón de la Axarquía",
+    "lead": "Del Río 36 B, 29700 Vélez-Málaga. Servicio en toda la Costa del Sol y Andalucía.",
+    "openMap": "Abrir en Google Maps",
+    "areas": "Zona de servicio"
+  },
+  "faq": {
+    "kicker": "Preguntas frecuentes",
+    "title": "Antes de escribirnos",
+    "items": {
+      "when": {
+        "q": "¿Con cuánta antelación hay que reservar?",
+        "a": "Recomendamos tres meses para DJ y sonido, y 6–8 meses para packs de decoración y food trucks en temporada alta."
+      },
+      "travel": {
+        "q": "¿Os desplazáis?",
+        "a": "Sí, a Málaga, Costa del Sol, Marbella, Granada, Almería, Cádiz y Sevilla. El kilometraje puede tener cargo."
+      },
+      "languages": {
+        "q": "¿Habláis inglés?",
+        "a": "Sí. Atendemos parejas locales e internacionales en español e inglés."
+      },
+      "pack": {
+        "q": "¿Qué incluye un pack de boda?",
+        "a": "Sonido completo para ceremonia, cóctel, banquete y barra libre, más iluminación y máquina de humo. El resto de extras se combina a medida."
+      }
+    }
+  },
+  "contact": {
+    "kicker": "Hablemos",
+    "title": "Pedid presupuesto sin compromiso",
+    "lead": "Contadnos fecha, lugar y lo que soñáis. Os respondemos por email y, si queréis, por WhatsApp.",
+    "name": "Nombre",
+    "email": "Email",
+    "phone": "Teléfono",
+    "eventType": "Tipo de evento",
+    "eventDate": "Fecha del evento",
+    "eventLocation": "Lugar",
+    "services": "Servicios de interés",
+    "message": "Mensaje",
+    "consent": "Acepto que Oliver Party Expert trate mis datos para responder a esta solicitud, según la política de privacidad.",
+    "submit": "Enviar consulta",
+    "sending": "Enviando…",
+    "success": "Consulta enviada. Os escribiremos a vuestro email.",
+    "error": "No se ha podido enviar. Probad de nuevo o escribid a oliverpartyofficial@gmail.com.",
+    "unavailable": "El formulario no está conectado todavía. Escribid a oliverpartyofficial@gmail.com o llamad al +34 620 95 68 68.",
+    "types": {
+      "wedding": "Boda",
+      "communion": "Comunión",
+      "birthday": "Cumpleaños",
+      "corporate": "Corporativo",
+      "other": "Otro"
+    }
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados.",
+    "privacy": "Privacidad",
+    "legal": "Aviso legal",
+    "cookies": "Cookies"
+  },
+  "legal": {
+    "privacyTitle": "Política de privacidad",
+    "legalTitle": "Aviso legal",
+    "cookiesTitle": "Política de cookies",
+    "privacyBody": "Responsable: Oliver Party Expert, Del Río 36 B, 29700 Vélez-Málaga, oliverpartyofficial@gmail.com. Tratamos nombre, email, teléfono y datos del evento solo para responder vuestra solicitud. Base jurídica: consentimiento (art. 6.1.a RGPD). Conservación: mientras dure la gestión de la consulta y hasta 2 años si no hay contrato. Destinatarios: Supabase (alojamiento de la base de datos) y Resend (envío de email). Podéis ejercer acceso, rectificación, supresión, oposición y portabilidad escribiendo al email indicado, y reclamar ante la AEPD.",
+    "legalBody": "Este sitio web es titularidad de Oliver Party Expert. Los contenidos informativos sobre servicios de DJ, alquiler y food trucks no constituyen una oferta vinculante. La contratación se formaliza por presupuesto aceptado. Prohibida la reproducción no autorizada de textos e imágenes.",
+    "cookiesBody": "Este sitio no usa cookies de analítica ni publicidad. Solo cookies técnicas imprescindibles del servidor si las hubiera. Instagram, Facebook o Google Maps solo se cargan si pulsáis reproducir o abrir el mapa; entonces esos terceros pueden colocar cookies propias. Podéis bloquearlas en el navegador."
+  }
+}

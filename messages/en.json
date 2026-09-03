@@ -1,0 +1,159 @@
+{
+  "meta": {
+    "title": "Wedding DJ in Malaga | Oliver Party Expert",
+    "description": "Wedding DJ, lighting, food trucks, crepes, ice cream trolley, photobooth and neon décor in Velez-Malaga, Malaga and the Costa del Sol."
+  },
+  "nav": {
+    "services": "Services",
+    "gallery": "Gallery",
+    "reviews": "Reviews",
+    "about": "Oliver",
+    "location": "Location",
+    "contact": "Contact",
+    "quote": "Request a quote",
+    "language": "ES"
+  },
+  "hero": {
+    "kicker": "Velez-Malaga · Costa del Sol",
+    "title": "Wedding DJ and party experiences in Malaga",
+    "lead": "Music, lighting, food trucks, crepes, ice cream and a photobooth so your celebration is remembered. Spanish and English, for local and destination couples.",
+    "cta": "Request a quote",
+    "secondary": "See services"
+  },
+  "services": {
+    "kicker": "What we offer",
+    "title": "Everything for your wedding, from one team",
+    "lead": "DJ, lighting, food trucks and décor with transport and set-up. Download the dossier for each service.",
+    "download": "Download dossier",
+    "items": {
+      "dj": {
+        "title": "DJ and sound",
+        "text": "Ceremony, drinks reception, dinner and party. 15+ years at venues such as Parque del Río, Cortijo Bravo and Hotel La Viñuela. Open playlist: pop, Latin, disco, flamenco and requests."
+      },
+      "lighting": {
+        "title": "Lighting and effects",
+        "text": "Light show, haze and cold sparklers for the first dance and a dancefloor that photographs beautifully."
+      },
+      "food-trucks": {
+        "title": "Food trucks",
+        "text": "Food trucks and horse truck to surprise guests at the cocktail hour or late-night snack. Set-up included."
+      },
+      "crepes": {
+        "title": "Crepe station",
+        "text": "A sweet crepe station for guests of every age. A crowd-pleaser every time."
+      },
+      "ice-cream": {
+        "title": "Ice cream trolley",
+        "text": "Artisan ice cream, 50+ flavours and a tricycle trolley for the garden or cocktail hour."
+      },
+      "photobooth": {
+        "title": "Photobooth",
+        "text": "Photobooth with props, neon and a guest book album. Digital copies for the couple."
+      },
+      "neons": {
+        "title": "Neons and LOVE letters",
+        "text": "Heart neon, LOVE letters, photocalls and initials. Décor made for photos."
+      },
+      "furniture": {
+        "title": "Lounge furniture",
+        "text": "Sofas, armchairs, desks, lit bars and chill-out corners."
+      },
+      "popcorn": {
+        "title": "Popcorn and candy floss",
+        "text": "Popcorn and candy-floss machines: a hit with children and adults."
+      },
+      "beer-tricycle": {
+        "title": "Beer tricycle",
+        "text": "Vintage beer cart and tricycle for the free bar."
+      }
+    }
+  },
+  "gallery": {
+    "kicker": "Real celebrations",
+    "title": "Parties that stay with you",
+    "lead": "Instagram and Facebook videos. They load only when you press play.",
+    "play": "Watch on {network}",
+    "facebook": "Facebook",
+    "instagram": "Instagram"
+  },
+  "reviews": {
+    "kicker": "Couples who booked us",
+    "title": "Wedding reviews in Malaga"
+  },
+  "about": {
+    "kicker": "Formerly Olisound",
+    "title": "Oliver Party Expert",
+    "lead": "A host DJ with 20+ years on the decks, from the 80s and 90s to today. Fairs, clubs, and a team that treats you like family.",
+    "p1": "Modern lighting, games, choreography and surprises so your day does not look like anyone else’s wedding.",
+    "p2": "Based in Velez-Malaga, we travel across Malaga, Marbella, Granada, Almeria, Cadiz and Seville."
+  },
+  "location": {
+    "kicker": "Find us",
+    "title": "Velez-Malaga, in the Axarquia",
+    "lead": "Del Río 36 B, 29700 Velez-Malaga. Serving the Costa del Sol and Andalusia.",
+    "openMap": "Open in Google Maps",
+    "areas": "Service area"
+  },
+  "faq": {
+    "kicker": "FAQ",
+    "title": "Before you write",
+    "items": {
+      "when": {
+        "q": "How far in advance should we book?",
+        "a": "We recommend three months for DJ and sound, and 6–8 months for décor and food-truck packages in peak season."
+      },
+      "travel": {
+        "q": "Do you travel?",
+        "a": "Yes — Malaga, Costa del Sol, Marbella, Granada, Almeria, Cadiz and Seville. Mileage may be charged."
+      },
+      "languages": {
+        "q": "Do you speak English?",
+        "a": "Yes. We look after local and destination-wedding couples in Spanish and English."
+      },
+      "pack": {
+        "q": "What is in a wedding pack?",
+        "a": "Full sound for ceremony, cocktail, dinner and free bar, plus lighting and haze. Other extras are mixed to taste."
+      }
+    }
+  },
+  "contact": {
+    "kicker": "Let’s talk",
+    "title": "Request a no-obligation quote",
+    "lead": "Tell us the date, venue and what you have in mind. We will reply by email and, if you like, WhatsApp.",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "eventType": "Event type",
+    "eventDate": "Event date",
+    "eventLocation": "Venue / location",
+    "services": "Services you need",
+    "message": "Message",
+    "consent": "I agree that Oliver Party Expert may process my details to answer this enquiry, as described in the privacy policy.",
+    "submit": "Send enquiry",
+    "sending": "Sending…",
+    "success": "Enquiry sent. We will write to your email.",
+    "error": "Could not send. Please try again or email oliverpartyofficial@gmail.com.",
+    "unavailable": "The form is not connected yet. Email oliverpartyofficial@gmail.com or call +34 620 95 68 68.",
+    "types": {
+      "wedding": "Wedding",
+      "communion": "Communion",
+      "birthday": "Birthday",
+      "corporate": "Corporate",
+      "other": "Other"
+    }
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "privacy": "Privacy",
+    "legal": "Legal notice",
+    "cookies": "Cookies"
+  },
+  "legal": {
+    "privacyTitle": "Privacy policy",
+    "legalTitle": "Legal notice",
+    "cookiesTitle": "Cookie policy",
+    "privacyBody": "Controller: Oliver Party Expert, Del Río 36 B, 29700 Velez-Malaga, oliverpartyofficial@gmail.com. We process name, email, phone and event details only to answer your enquiry. Legal basis: consent (GDPR art. 6.1.a). Retention: for the enquiry and up to 2 years if no contract follows. Recipients: Supabase (database hosting) and Resend (email). You may request access, rectification, erasure, objection and portability via the email above, and complain to the Spanish AEPD.",
+    "legalBody": "This website is owned by Oliver Party Expert. Information about DJ, hire and food-truck services is not a binding offer. Bookings are confirmed by accepted quote. Unauthorised reproduction of text and images is prohibited.",
+    "cookiesBody": "This site does not use analytics or advertising cookies. Only strictly necessary technical cookies if the host sets them. Instagram, Facebook or Google Maps load only if you press play or open the map; those providers may then set their own cookies. You can block them in your browser."
+  }
+}
