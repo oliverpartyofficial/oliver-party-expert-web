@@ -26,7 +26,13 @@ export function Header({ locale }: { locale: AppLocale }) {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-6">
         <Link href="/" className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.svg" alt={COMPANY.name} className="h-10 w-10" />
+          <img
+            src="/logo.jpg"
+            alt={COMPANY.name}
+            width={40}
+            height={40}
+            className="h-10 w-10 rounded-full object-cover"
+          />
           <span className="font-serif text-lg tracking-wide text-espresso md:text-xl">
             {COMPANY.name}
           </span>

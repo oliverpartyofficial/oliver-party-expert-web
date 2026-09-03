@@ -71,10 +71,9 @@
   "gallery": {
     "kicker": "Real celebrations",
     "title": "Parties that stay with you",
-    "lead": "Instagram and Facebook videos. They load only when you press play.",
-    "play": "Watch on {network}",
-    "facebook": "Facebook",
-    "instagram": "Instagram"
+    "lead": "Real event photos from Oliver Party Expert. Videos stay on social media for now; YouTube can be added later.",
+    "playYoutube": "Watch on YouTube",
+    "morePhotos": "More photos and reels on"
   },
   "reviews": {
     "kicker": "Couples who booked us",

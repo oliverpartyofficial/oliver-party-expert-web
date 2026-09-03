@@ -16,6 +16,10 @@ describe("buildJsonLd", () => {
       "https://www.facebook.com/olivergarciadjevents",
       "https://www.instagram.com/oliverpartyexpert/",
     ]);
+    expect(business.logo).toMatch(/\/logo\.jpg$/);
+    expect(business.image).toEqual(
+      expect.arrayContaining([expect.stringMatching(/\/logo\.jpg$/)]),
+    );
     expect(JSON.stringify(json)).not.toContain("AggregateRating");
     expect(JSON.stringify(business.areaServed)).toContain("Málaga");
   });

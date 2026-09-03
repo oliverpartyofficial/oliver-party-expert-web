@@ -10,7 +10,17 @@ export async function Footer() {
     <footer className="border-t border-[var(--line)] bg-espresso text-ivory">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 md:grid-cols-3 md:px-6">
         <div>
-          <p className="font-serif text-2xl">{COMPANY.name}</p>
+          <div className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.jpg"
+              alt=""
+              width={40}
+              height={40}
+              className="h-10 w-10 rounded-full object-cover"
+            />
+            <p className="font-serif text-2xl">{COMPANY.name}</p>
+          </div>
           <p className="mt-2 text-sm text-cream">
             {COMPANY.address.street}, {COMPANY.address.postalCode}{" "}
             {COMPANY.address.locality}

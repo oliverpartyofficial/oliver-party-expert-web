@@ -70,44 +70,85 @@ export const TESTIMONIALS = [
   },
 ] as const;
 
-export const GALLERY_ITEMS = [
+/**
+ * Gallery is image-first so Meta Reels/embeds cannot break the carousel.
+ * Add YouTube later with: { id, kind: "youtube", youtubeId, poster, altEs, altEn }.
+ */
+export type GalleryItem =
+  | {
+      id: string;
+      kind: "image";
+      src: string;
+      altEs: string;
+      altEn: string;
+    }
+  | {
+      id: string;
+      kind: "youtube";
+      youtubeId: string;
+      poster: string;
+      altEs: string;
+      altEn: string;
+    };
+
+export const GALLERY_ITEMS: GalleryItem[] = [
   {
-    id: "reel-1",
-    kind: "facebook" as const,
-    href: "https://www.facebook.com/reel/1535604844971229",
-    poster: "/media/gallery-1.jpg",
+    id: "phone-booth",
+    kind: "image",
+    src: "/media/gallery-1.jpg",
+    altEs: "Cabina telefónica iluminada de Oliver Party Expert",
+    altEn: "Illuminated telephone booth by Oliver Party Expert",
   },
   {
-    id: "reel-2",
-    kind: "facebook" as const,
-    href: "https://www.facebook.com/reel/951151737778177",
-    poster: "/media/gallery-2.jpg",
+    id: "fire-show",
+    kind: "image",
+    src: "/media/gallery-2.jpg",
+    altEs: "Espectáculo de fuego con iluminación de escenario",
+    altEn: "Fire performance with stage lighting",
   },
   {
-    id: "reel-3",
-    kind: "facebook" as const,
-    href: "https://www.facebook.com/reel/1492693528872714",
-    poster: "/media/gallery-3.jpg",
+    id: "dancefloor",
+    kind: "image",
+    src: "/media/gallery-3.jpg",
+    altEs: "Pista de baile con luces y sonido Oliver Party Expert",
+    altEn: "Dance floor with Oliver Party Expert lights and sound",
   },
   {
-    id: "instagram",
-    kind: "instagram" as const,
-    href: "https://www.instagram.com/oliverpartyexpert/",
-    poster: "/media/gallery-4.jpg",
+    id: "wish-tree",
+    kind: "image",
+    src: "/media/gallery-4.jpg",
+    altEs: "Árbol de los deseos y ambientación en rojo",
+    altEn: "Wish tree décor under red lighting",
   },
   {
-    id: "photo-neon",
-    kind: "image" as const,
-    href: "https://www.instagram.com/oliverpartyexpert/",
-    poster: "/media/service-neons.jpg",
+    id: "hotdog-truck",
+    kind: "image",
+    src: "/media/gallery-5.jpg",
+    altEs: "Food truck de hot dogs para eventos",
+    altEn: "Hot dog food truck for events",
   },
   {
-    id: "photo-truck",
-    kind: "image" as const,
-    href: "https://www.facebook.com/olivergarciadjevents",
-    poster: "/media/service-food-truck.jpg",
+    id: "neons",
+    kind: "image",
+    src: "/media/service-neons.jpg",
+    altEs: "Neones y letras luminosas para bodas",
+    altEn: "Neon signs and lit letters for weddings",
   },
-] as const;
+  {
+    id: "ice-cream",
+    kind: "image",
+    src: "/media/service-ice-cream.jpg",
+    altEs: "Carrito de helados para bodas",
+    altEn: "Ice cream trolley for weddings",
+  },
+  {
+    id: "photobooth",
+    kind: "image",
+    src: "/media/service-photobooth.jpg",
+    altEs: "Fotomatón para fiestas y bodas",
+    altEn: "Photobooth for parties and weddings",
+  },
+];
 
 export const FAQ = [
   { id: "when" },

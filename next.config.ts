@@ -20,7 +20,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
-      "frame-src https://www.instagram.com https://www.facebook.com https://www.google.com https://maps.google.com https://challenges.cloudflare.com",
+      "frame-src https://www.instagram.com https://www.facebook.com https://www.youtube-nocookie.com https://www.google.com https://maps.google.com https://challenges.cloudflare.com",
       "connect-src 'self' https://challenges.cloudflare.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
