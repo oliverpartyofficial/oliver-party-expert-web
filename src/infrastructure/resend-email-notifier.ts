@@ -1,13 +1,9 @@
 import { Resend } from "resend";
 import { COMPANY } from "@/content/company";
-import type { InquiryRecord } from "@/domain/inquiry";
-import { escapeHtml } from "@/domain/inquiry";
+import { escapeHtml, type InquiryRecord } from "@/domain/inquiry";
 import type { EmailNotifier } from "@/application/ports";
 import { getContactConfig } from "./env";
-
-function row(label: string, value: string) {
-  return `<p><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`;
-}
+import { renderBrandedEmail, renderInquiryDetails } from "./email-template";
 
 export function createResendEmailNotifier(): EmailNotifier {
   function client() {
@@ -24,23 +20,20 @@ export function createResendEmailNotifier(): EmailNotifier {
       // Resend is optional: skip the notification when no API key is set so the
       // inquiry is still captured in the database.
       if (!env.resendApiKey) return;
-      const html = [
-        `<h1>Nueva consulta — ${escapeHtml(COMPANY.name)}</h1>`,
-        row("Nombre", inquiry.name),
-        row("Email", inquiry.email),
-        row("Teléfono", inquiry.phone),
-        row("Tipo de evento", inquiry.eventType),
-        row("Fecha", inquiry.eventDate || "—"),
-        row("Lugar", inquiry.location || "—"),
-        row("Servicios", inquiry.services.join(", ")),
-        row("Idioma", inquiry.locale),
-        row("Mensaje", inquiry.message),
-      ].join("");
+
+      const html = renderBrandedEmail({
+        siteUrl: env.siteUrl,
+        preheader: `${inquiry.name} · ${inquiry.eventType} · ${inquiry.email}`,
+        heading: "Nueva consulta",
+        subheading: "Habéis recibido una nueva solicitud de presupuesto desde la web.",
+        contentHtml: renderInquiryDetails(inquiry),
+      });
+
       const { error } = await client().emails.send({
         from: env.resendFromEmail,
         to: env.contactToEmail,
         replyTo: inquiry.email,
-        subject: `Consulta web: ${inquiry.name} (${inquiry.eventType})`,
+        subject: `Nueva consulta: ${inquiry.name} · ${inquiry.eventType}`,
         html,
       });
       if (error) throw new Error(error.message);
@@ -50,19 +43,37 @@ export function createResendEmailNotifier(): EmailNotifier {
       const env = getContactConfig();
       if (!env.resendApiKey) return;
       const isEs = inquiry.locale === "es";
-      const html = isEs
+
+      const heading = isEs
+        ? `¡Gracias, ${inquiry.name}!`
+        : `Thank you, ${inquiry.name}!`;
+      const subheading = isEs
+        ? `Hemos recibido tu solicitud para ${COMPANY.name}. Oliver o su equipo te responderán lo antes posible.`
+        : `We have received your enquiry for ${COMPANY.name}. Oliver or his team will get back to you as soon as possible.`;
+      const contentHtml = isEs
         ? `
-          <p>Hola ${escapeHtml(inquiry.name)},</p>
-          <p>Hemos recibido tu solicitud para ${escapeHtml(COMPANY.name)}. Oliver o su equipo te responderán lo antes posible.</p>
-          <p>Teléfono: ${escapeHtml(COMPANY.phoneDisplay)}<br/>Email: ${escapeHtml(COMPANY.email)}</p>
-          <p>Un saludo,<br/>${escapeHtml(COMPANY.name)}</p>
-        `
+          <p style="margin:0 0 14px;">Mientras tanto, si quieres adelantarnos cualquier detalle puedes escribirnos o llamarnos directamente:</p>
+          <p style="margin:0;">
+            <strong>Teléfono:</strong> ${escapeHtml(COMPANY.phoneDisplay)}<br />
+            <strong>Email:</strong> ${escapeHtml(COMPANY.email)}
+          </p>
+          <p style="margin:18px 0 0;">Un saludo,<br />${escapeHtml(COMPANY.name)}</p>`
         : `
-          <p>Hello ${escapeHtml(inquiry.name)},</p>
-          <p>We have received your enquiry for ${escapeHtml(COMPANY.name)}. Oliver or his team will get back to you as soon as possible.</p>
-          <p>Phone: ${escapeHtml(COMPANY.phoneDisplay)}<br/>Email: ${escapeHtml(COMPANY.email)}</p>
-          <p>Kind regards,<br/>${escapeHtml(COMPANY.name)}</p>
-        `;
+          <p style="margin:0 0 14px;">In the meantime, feel free to share any extra details by email or phone:</p>
+          <p style="margin:0;">
+            <strong>Phone:</strong> ${escapeHtml(COMPANY.phoneDisplay)}<br />
+            <strong>Email:</strong> ${escapeHtml(COMPANY.email)}
+          </p>
+          <p style="margin:18px 0 0;">Kind regards,<br />${escapeHtml(COMPANY.name)}</p>`;
+
+      const html = renderBrandedEmail({
+        siteUrl: env.siteUrl,
+        preheader: subheading,
+        heading,
+        subheading,
+        contentHtml,
+      });
+
       const { error } = await client().emails.send({
         from: env.resendFromEmail,
         to: inquiry.email,
