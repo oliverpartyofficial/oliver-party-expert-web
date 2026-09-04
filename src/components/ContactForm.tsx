@@ -9,9 +9,29 @@ export function ContactForm() {
   const t = useTranslations("contact");
   const ts = useTranslations("services");
   const locale = useLocale();
-  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error" | "unavailable">(
-    "idle",
-  );
+  const [status, setStatus] = useState<
+    "idle" | "sending" | "success" | "error" | "unavailable" | "invalid"
+  >("idle");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const KNOWN_FIELDS = [
+    "name",
+    "email",
+    "phone",
+    "eventType",
+    "services",
+    "message",
+    "consent",
+  ] as const;
+
+  function fieldError(name: (typeof KNOWN_FIELDS)[number]) {
+    if (!fieldErrors[name]) return null;
+    return (
+      <span role="alert" className="text-xs text-red-800">
+        {fieldErrors[name]}
+      </span>
+    );
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -33,6 +53,7 @@ export function ContactForm() {
     };
 
     setStatus("sending");
+    setFieldErrors({});
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
@@ -41,6 +62,21 @@ export function ContactForm() {
       });
       if (response.status === 503) {
         setStatus("unavailable");
+        return;
+      }
+      if (response.status === 400) {
+        const data = (await response.json().catch(() => null)) as {
+          issues?: { fieldErrors?: Record<string, string[]> };
+        } | null;
+        const rawErrors = data?.issues?.fieldErrors ?? {};
+        const mapped: Record<string, string> = {};
+        for (const key of KNOWN_FIELDS) {
+          if (rawErrors[key]?.length) {
+            mapped[key] = t(`fieldErrors.${key}`);
+          }
+        }
+        setFieldErrors(mapped);
+        setStatus("invalid");
         return;
       }
       if (!response.ok) {
@@ -63,6 +99,7 @@ export function ContactForm() {
         <label className="grid gap-1 text-sm">
           {t("name")}
           <input required name="name" className="border border-[var(--line)] bg-paper px-3 py-2" />
+          {fieldError("name")}
         </label>
         <label className="grid gap-1 text-sm">
           {t("email")}
@@ -72,10 +109,12 @@ export function ContactForm() {
             name="email"
             className="border border-[var(--line)] bg-paper px-3 py-2"
           />
+          {fieldError("email")}
         </label>
         <label className="grid gap-1 text-sm">
           {t("phone")}
           <input required name="phone" className="border border-[var(--line)] bg-paper px-3 py-2" />
+          {fieldError("phone")}
         </label>
         <label className="grid gap-1 text-sm">
           {t("eventType")}
@@ -105,6 +144,7 @@ export function ContactForm() {
               </label>
             ))}
           </div>
+          <div className="mt-2">{fieldError("services")}</div>
         </fieldset>
         <label className="grid gap-1 text-sm md:col-span-2">
           {t("message")}
@@ -112,22 +152,28 @@ export function ContactForm() {
             required
             name="message"
             rows={5}
+            minLength={10}
             className="border border-[var(--line)] bg-paper px-3 py-2"
           />
+          <span className="text-xs text-muted">{t("messageHint")}</span>
+          {fieldError("message")}
         </label>
         <label className="hidden" aria-hidden="true">
           website
           <input name="website" tabIndex={-1} autoComplete="off" />
         </label>
-        <label className="flex items-start gap-2 text-sm md:col-span-2">
-          <input required type="checkbox" name="consent" className="mt-1" />
-          <span>
-            {t("consent")}{" "}
-            <Link href="/privacy" className="underline">
-              {locale === "es" ? "privacidad" : "privacy"}
-            </Link>
-          </span>
-        </label>
+        <div className="grid gap-1 md:col-span-2">
+          <label className="flex items-start gap-2 text-sm">
+            <input required type="checkbox" name="consent" className="mt-1" />
+            <span>
+              {t("consent")}{" "}
+              <Link href="/privacy" className="underline">
+                {locale === "es" ? "privacidad" : "privacy"}
+              </Link>
+            </span>
+          </label>
+          {fieldError("consent")}
+        </div>
         <button
           type="submit"
           disabled={status === "sending"}
@@ -140,6 +186,9 @@ export function ContactForm() {
         ) : null}
         {status === "error" ? (
           <p className="md:col-span-2 text-sm text-red-800">{t("error")}</p>
+        ) : null}
+        {status === "invalid" ? (
+          <p className="md:col-span-2 text-sm text-red-800">{t("fixErrors")}</p>
         ) : null}
         {status === "unavailable" ? (
           <p className="md:col-span-2 text-sm text-muted">{t("unavailable")}</p>

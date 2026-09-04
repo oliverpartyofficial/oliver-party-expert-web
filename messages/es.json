@@ -135,6 +135,17 @@
     "success": "Consulta enviada. Os escribiremos a vuestro email.",
     "error": "No se ha podido enviar. Probad de nuevo o escribid a oliverpartyofficial@gmail.com.",
     "unavailable": "El formulario no está conectado todavía. Escribid a oliverpartyofficial@gmail.com o llamad al +34 620 95 68 68.",
+    "messageHint": "Contadnos un poco más (mínimo 10 caracteres).",
+    "fixErrors": "Revisad los campos marcados e inténtalo de nuevo.",
+    "fieldErrors": {
+      "name": "Introduce tu nombre (mínimo 2 caracteres).",
+      "email": "Introduce un email válido.",
+      "phone": "Introduce un teléfono válido (mínimo 7 dígitos).",
+      "eventType": "Selecciona un tipo de evento.",
+      "services": "Selecciona al menos un servicio.",
+      "message": "El mensaje debe tener al menos 10 caracteres.",
+      "consent": "Debes aceptar la política de privacidad."
+    },
     "types": {
       "wedding": "Boda",
       "communion": "Comunión",
