@@ -14,6 +14,18 @@ const scriptSrc = [
 ].join(" ");
 
 const securityHeaders = [
+  // Force HTTPS for two years, including subdomains. Only sent in production
+  // so local http dev is never pinned to HTTPS. Add "; preload" and submit to
+  // hstspreload.org once you're certain every subdomain will always be HTTPS
+  // (the preload list is slow and hard to reverse).
+  ...(process.env.NODE_ENV === "production"
+    ? [
+        {
+          key: "Strict-Transport-Security",
+          value: "max-age=63072000; includeSubDomains",
+        },
+      ]
+    : []),
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
