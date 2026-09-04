@@ -21,6 +21,9 @@ export function createResendEmailNotifier(): EmailNotifier {
   return {
     async notifyBusiness(inquiry: InquiryRecord) {
       const env = getContactConfig();
+      // Resend is optional: skip the notification when no API key is set so the
+      // inquiry is still captured in the database.
+      if (!env.resendApiKey) return;
       const html = [
         `<h1>Nueva consulta — ${escapeHtml(COMPANY.name)}</h1>`,
         row("Nombre", inquiry.name),
@@ -45,6 +48,7 @@ export function createResendEmailNotifier(): EmailNotifier {
 
     async notifyVisitor(inquiry: InquiryRecord) {
       const env = getContactConfig();
+      if (!env.resendApiKey) return;
       const isEs = inquiry.locale === "es";
       const html = isEs
         ? `
