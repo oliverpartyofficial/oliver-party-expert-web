@@ -19,11 +19,13 @@ export function getContactConfig() {
   };
 }
 
+// Only the datastore is mandatory for the contact form to accept a submission.
+// Resend is optional: when it is not configured the inquiry is still persisted
+// and the email notification is simply skipped (see resend-email-notifier).
 export function missingContactSecrets() {
   const env = getContactConfig();
   const missing: string[] = [];
   if (!env.supabaseUrl) missing.push("SUPABASE_URL");
   if (!env.supabaseServiceRoleKey) missing.push("SUPABASE_SERVICE_ROLE_KEY");
-  if (!env.resendApiKey) missing.push("RESEND_API_KEY");
   return missing;
 }

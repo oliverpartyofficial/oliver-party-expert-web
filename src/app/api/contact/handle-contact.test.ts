@@ -61,7 +61,7 @@ describe("contact handler", () => {
     const POST = createContactHandler({
       submit: vi.fn(),
       getSiteUrl: () => site,
-      missingSecrets: () => ["RESEND_API_KEY"],
+      missingSecrets: () => ["SUPABASE_URL"],
     });
     const res = await POST(request({}));
     expect(res.status).toBe(503);
