@@ -7,11 +7,11 @@ export function buildPageMetadata(locale: AppLocale): Metadata {
   const site = getSiteUrl();
   const isEs = locale === "es";
   const title = isEs
-    ? "DJ y animación para bodas en Málaga | Oliver Party Expert"
-    : "Wedding DJ in Malaga | Oliver Party Expert";
+    ? "DJ, bodas y eventos en Vélez-Málaga | Oliver Party Expert"
+    : "Wedding & event DJ in Vélez-Málaga | Oliver Party Expert";
   const description = isEs
-    ? "DJ, iluminación, food trucks, crepes, carrito de helados, fotomatón y neones para bodas y eventos en Vélez-Málaga, Málaga y la Costa del Sol."
-    : "Wedding DJ, lighting, food trucks, crepes, ice cream trolley, photobooth and neon décor in Velez-Malaga, Malaga and the Costa del Sol.";
+    ? "Organización de bodas y eventos en Vélez-Málaga: DJ, iluminación, food trucks, crepes, carrito de helados, fotomatón y neones en Málaga y la Costa del Sol."
+    : "Wedding and event services in Vélez-Málaga: DJ, lighting, food trucks, crepes, ice cream trolley, photobooth and neon décor in Malaga and the Costa del Sol.";
 
   return {
     metadataBase: new URL(site),
@@ -24,6 +24,9 @@ export function buildPageMetadata(locale: AppLocale): Metadata {
     category: "entertainment",
     keywords: isEs
       ? [
+          "organización de eventos Vélez-Málaga",
+          "organizador de eventos Málaga",
+          "eventos Costa del Sol",
           "DJ bodas Málaga",
           "DJ Vélez-Málaga",
           "food truck boda Costa del Sol",
@@ -33,6 +36,9 @@ export function buildPageMetadata(locale: AppLocale): Metadata {
           "neones boda Málaga",
         ]
       : [
+          "event planner Malaga",
+          "event services Vélez-Málaga",
+          "party organiser Costa del Sol",
           "wedding DJ Malaga",
           "wedding DJ Costa del Sol",
           "food truck wedding Malaga",
