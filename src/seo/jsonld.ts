@@ -42,6 +42,10 @@ export function buildJsonLd(locale: AppLocale) {
     "@type": ["LocalBusiness", "EntertainmentBusiness"],
     "@id": `${site}/#business`,
     name: COMPANY.name,
+    description:
+      locale === "es"
+        ? "Organización de bodas y eventos en Vélez-Málaga y la Costa del Sol: DJ, iluminación, food trucks, fotomatón, carrito de helados y más."
+        : "Wedding and event services in Vélez-Málaga and the Costa del Sol: DJ, lighting, food trucks, photobooth, ice cream trolley and more.",
     image: [`${site}/logo.jpg`, `${site}/media/og.jpg`],
     logo: `${site}/logo.jpg`,
     url,
@@ -52,6 +56,7 @@ export function buildJsonLd(locale: AppLocale) {
     knowsLanguage: ["es", "en"],
     category: [
       "DJ",
+      "Event planning service",
       "Wedding service",
       "Party equipment rental",
       "Photo booth rental",
@@ -115,8 +120,8 @@ export function buildJsonLd(locale: AppLocale) {
     url,
     name:
       locale === "es"
-        ? "DJ y animación para bodas en Málaga | Oliver Party Expert"
-        : "Wedding DJ in Malaga | Oliver Party Expert",
+        ? "DJ, bodas y eventos en Vélez-Málaga | Oliver Party Expert"
+        : "Wedding & event DJ in Vélez-Málaga | Oliver Party Expert",
     inLanguage,
     isPartOf: { "@id": `${site}/#website` },
     about: { "@id": `${site}/#business` },
