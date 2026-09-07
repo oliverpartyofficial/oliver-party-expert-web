@@ -134,9 +134,10 @@
     "sending": "Enviando…",
     "success": "Consulta enviada. Os escribiremos a vuestro email.",
     "error": "No se ha podido enviar. Probad de nuevo o escribid a oliverpartyofficial@gmail.com.",
+    "captchaError": "Completad la verificación de seguridad e intentadlo de nuevo.",
     "unavailable": "El formulario no está conectado todavía. Escribid a oliverpartyofficial@gmail.com o llamad al +34 620 95 68 68.",
     "messageHint": "Contadnos un poco más (mínimo 10 caracteres).",
-    "fixErrors": "Revisad los campos marcados e inténtalo de nuevo.",
+    "formErrors": "Revisad los campos marcados e inténtalo de nuevo.",
     "fieldErrors": {
       "name": "Introduce tu nombre (mínimo 2 caracteres).",
       "email": "Introduce un email válido.",

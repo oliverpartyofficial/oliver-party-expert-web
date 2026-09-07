@@ -1,12 +1,17 @@
 import type { CaptchaVerifier } from "@/application/ports";
 import { getContactConfig } from "./env";
 
+/**
+ * Verifies Cloudflare Turnstile tokens via siteverify.
+ * Fail-closed: missing keys or missing/invalid tokens never allow the request
+ * through to Supabase/Resend.
+ */
 export function createTurnstileVerifier(): CaptchaVerifier {
   return {
     async verify(token, ip) {
       const { turnstileSecret, turnstileSiteKey } = getContactConfig();
       if (!turnstileSecret || !turnstileSiteKey) {
-        return true;
+        return false;
       }
       if (!token) return false;
 

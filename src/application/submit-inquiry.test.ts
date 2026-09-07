@@ -90,14 +90,52 @@ describe("submitInquiry", () => {
     await expect(submit(valid, { ip: "1.1.1.1" })).rejects.toBeInstanceOf(RateLimitError);
   });
 
-  it("throws CaptchaError", async () => {
+  it("throws CaptchaError before rate limiting or persistence", async () => {
+    const repository = { save: vi.fn(), markEmailFailed: vi.fn() };
+    const rateLimiter = { consume: vi.fn().mockResolvedValue({ ok: true }) };
     const submit = createSubmitInquiry({
-      repository: { save: vi.fn(), markEmailFailed: vi.fn() },
+      repository,
       email: { notifyBusiness: vi.fn(), notifyVisitor: vi.fn() },
-      rateLimiter: { consume: async () => ({ ok: true }) },
+      rateLimiter,
       captcha: { verify: async () => false },
     });
     await expect(submit(valid, { ip: "1.1.1.1" })).rejects.toBeInstanceOf(CaptchaError);
+    expect(rateLimiter.consume).not.toHaveBeenCalled();
+    expect(repository.save).not.toHaveBeenCalled();
+  });
+
+  it("verifies captcha before rate limit and Supabase write", async () => {
+    const order: string[] = [];
+    const saved = record();
+    const submit = createSubmitInquiry({
+      repository: {
+        save: vi.fn().mockImplementation(async () => {
+          order.push("save");
+          return saved;
+        }),
+        markEmailFailed: vi.fn(),
+      },
+      email: {
+        notifyBusiness: vi.fn().mockResolvedValue(undefined),
+        notifyVisitor: vi.fn().mockResolvedValue(undefined),
+      },
+      rateLimiter: {
+        consume: vi.fn().mockImplementation(async () => {
+          order.push("rate");
+          return { ok: true };
+        }),
+      },
+      captcha: {
+        verify: vi.fn().mockImplementation(async () => {
+          order.push("captcha");
+          return true;
+        }),
+      },
+    });
+    await submit({ ...valid, turnstileToken: "token" }, { ip: "1.1.1.1" });
+    expect(order[0]).toBe("captcha");
+    expect(order.slice(1, 3)).toEqual(["rate", "rate"]);
+    expect(order[3]).toBe("save");
   });
 
   it("marks email_failed if mail throws after persist", async () => {

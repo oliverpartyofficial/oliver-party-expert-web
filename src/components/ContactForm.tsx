@@ -1,18 +1,29 @@
 "use client";
 
+import { TurnstileField } from "@/components/TurnstileField";
 import { EVENT_TYPES, SERVICE_IDS } from "@/content/company";
 import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 export function ContactForm() {
   const t = useTranslations("contact");
   const ts = useTranslations("services");
   const locale = useLocale();
   const [status, setStatus] = useState<
-    "idle" | "sending" | "success" | "error" | "unavailable" | "invalid"
+    | "idle"
+    | "sending"
+    | "success"
+    | "error"
+    | "unavailable"
+    | "invalid"
+    | "captcha"
   >("idle");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileReset, setTurnstileReset] = useState(0);
 
   const KNOWN_FIELDS = [
     "name",
@@ -38,6 +49,12 @@ export function ContactForm() {
     const form = event.currentTarget;
     const data = new FormData(form);
     const services = data.getAll("services").map(String);
+
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setStatus("captcha");
+      return;
+    }
+
     const payload = {
       name: String(data.get("name") ?? ""),
       email: String(data.get("email") ?? ""),
@@ -50,6 +67,7 @@ export function ContactForm() {
       locale,
       consent: data.get("consent") === "on",
       website: String(data.get("website") ?? ""),
+      turnstileToken,
     };
 
     setStatus("sending");
@@ -62,12 +80,19 @@ export function ContactForm() {
       });
       if (response.status === 503) {
         setStatus("unavailable");
+        setTurnstileReset((n) => n + 1);
         return;
       }
       if (response.status === 400) {
         const data = (await response.json().catch(() => null)) as {
+          error?: string;
           issues?: { fieldErrors?: Record<string, string[]> };
         } | null;
+        if (data?.error === "Captcha failed") {
+          setStatus("captcha");
+          setTurnstileReset((n) => n + 1);
+          return;
+        }
         const rawErrors = data?.issues?.fieldErrors ?? {};
         const mapped: Record<string, string> = {};
         for (const key of KNOWN_FIELDS) {
@@ -77,16 +102,21 @@ export function ContactForm() {
         }
         setFieldErrors(mapped);
         setStatus("invalid");
+        setTurnstileReset((n) => n + 1);
         return;
       }
       if (!response.ok) {
         setStatus("error");
+        setTurnstileReset((n) => n + 1);
         return;
       }
       setStatus("success");
       form.reset();
+      setTurnstileToken("");
+      setTurnstileReset((n) => n + 1);
     } catch {
       setStatus("error");
+      setTurnstileReset((n) => n + 1);
     }
   }
 
@@ -174,6 +204,15 @@ export function ContactForm() {
           </label>
           {fieldError("consent")}
         </div>
+        {TURNSTILE_SITE_KEY ? (
+          <div className="md:col-span-2">
+            <TurnstileField
+              siteKey={TURNSTILE_SITE_KEY}
+              onToken={setTurnstileToken}
+              resetSignal={turnstileReset}
+            />
+          </div>
+        ) : null}
         <button
           type="submit"
           disabled={status === "sending"}
@@ -187,8 +226,11 @@ export function ContactForm() {
         {status === "error" ? (
           <p className="md:col-span-2 text-sm text-red-800">{t("error")}</p>
         ) : null}
+        {status === "captcha" ? (
+          <p className="md:col-span-2 text-sm text-red-800">{t("captchaError")}</p>
+        ) : null}
         {status === "invalid" ? (
-          <p className="md:col-span-2 text-sm text-red-800">{t("fixErrors")}</p>
+          <p className="md:col-span-2 text-sm text-red-800">{t("formErrors")}</p>
         ) : null}
         {status === "unavailable" ? (
           <p className="md:col-span-2 text-sm text-muted">{t("unavailable")}</p>

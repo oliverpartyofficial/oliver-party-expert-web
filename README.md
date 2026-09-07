@@ -35,8 +35,10 @@ Never use `NEXT_PUBLIC_` for secrets. The browser never talks to Supabase.
 | `RESEND_API_KEY` | Server | API key |
 | `RESEND_FROM_EMAIL` | Server | Must be a verified sender |
 | `CONTACT_TO_EMAIL` | Server | Default `oliverpartyofficial@gmail.com` |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Optional public | Turnstile site key |
-| `TURNSTILE_SECRET_KEY` | Optional server | Turnstile secret |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Public | Cloudflare Turnstile site key (required) |
+| `TURNSTILE_SECRET_KEY` | Server | Cloudflare Turnstile secret (required) |
+
+Contact submissions are rejected (503) until Supabase **and** Turnstile are configured. Turnstile is verified server-side **before** any Supabase write or Resend send. For local/CI, Cloudflare’s always-pass dummy keys work (`1x00000000000000000000AA` / `1x0000000000000000000000000000000AA`).
 
 ## Supabase
 
