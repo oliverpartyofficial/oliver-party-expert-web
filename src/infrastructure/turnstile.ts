@@ -3,16 +3,20 @@ import { getContactConfig } from "./env";
 
 /**
  * Verifies Cloudflare Turnstile tokens via siteverify.
- * Fail-closed: missing keys or missing/invalid tokens never allow the request
- * through to Supabase/Resend.
+ *
+ * - Both keys unset: captcha is skipped (rate limit + honeypot still apply).
+ * - Both keys set: fail-closed — missing/invalid tokens never reach Supabase/Resend.
+ * - Only one key set: treat as misconfiguration and reject.
  */
 export function createTurnstileVerifier(): CaptchaVerifier {
   return {
     async verify(token, ip) {
       const { turnstileSecret, turnstileSiteKey } = getContactConfig();
-      if (!turnstileSecret || !turnstileSiteKey) {
-        return false;
-      }
+      const configured = Boolean(turnstileSecret && turnstileSiteKey);
+      const partial = Boolean(turnstileSecret || turnstileSiteKey) && !configured;
+
+      if (partial) return false;
+      if (!configured) return true;
       if (!token) return false;
 
       const body = new URLSearchParams({

@@ -19,16 +19,29 @@ export function getContactConfig() {
   };
 }
 
-// Supabase + Turnstile are mandatory before the contact form accepts traffic.
-// Turnstile must be configured so bots cannot burn Supabase/Resend quota.
-// Resend is optional: when it is not configured the inquiry is still persisted
-// and the email notification is simply skipped (see resend-email-notifier).
+// Only the datastore is mandatory for the contact form to accept a submission.
+// Turnstile is strongly recommended in production: when both keys are set the
+// server enforces captcha before Supabase/Resend. When unset, honeypot + rate
+// limits still apply. Resend remains optional (see resend-email-notifier).
 export function missingContactSecrets() {
   const env = getContactConfig();
   const missing: string[] = [];
   if (!env.supabaseUrl) missing.push("SUPABASE_URL");
   if (!env.supabaseServiceRoleKey) missing.push("SUPABASE_SERVICE_ROLE_KEY");
-  if (!env.turnstileSiteKey) missing.push("NEXT_PUBLIC_TURNSTILE_SITE_KEY");
-  if (!env.turnstileSecret) missing.push("TURNSTILE_SECRET_KEY");
   return missing;
+}
+
+/** Apex and www variants of SITE_URL (Vercel often redirects between them). */
+export function allowedSiteOrigins(siteUrl = getSiteUrl()): string[] {
+  try {
+    const primary = new URL(siteUrl).origin;
+    const { protocol, hostname } = new URL(primary);
+    const altHost = hostname.startsWith("www.")
+      ? hostname.slice(4)
+      : `www.${hostname}`;
+    const alt = `${protocol}//${altHost}`;
+    return primary === alt ? [primary] : [primary, alt];
+  } catch {
+    return [];
+  }
 }
