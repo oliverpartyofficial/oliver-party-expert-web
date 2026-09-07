@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { RateLimitError, ValidationError } from "@/application/submit-inquiry";
+import { CaptchaError, RateLimitError, ValidationError } from "@/application/submit-inquiry";
 import { createContactHandler } from "./handle-contact";
 
 const site = "https://oliverpartyexpert.com";
@@ -45,6 +45,17 @@ describe("contact handler", () => {
     });
     const res = await POST(request({}));
     expect(res.status).toBe(429);
+  });
+
+  it("returns 400 on captcha failure", async () => {
+    const POST = createContactHandler({
+      submit: vi.fn().mockRejectedValue(new CaptchaError()),
+      getSiteUrl: () => site,
+      missingSecrets: () => [],
+    });
+    const res = await POST(request({}));
+    expect(res.status).toBe(400);
+    await expect(res.json()).resolves.toEqual({ error: "Captcha failed" });
   });
 
   it("returns 403 on bad origin", async () => {

@@ -54,15 +54,23 @@ export function createSubmitInquiry(deps: SubmitInquiryDeps) {
       return { ok: true as const, ignored: true as const };
     }
 
-    const rateKey = `${meta.ip}:${inquiry.email.toLowerCase()}`;
-    const limit = await deps.rateLimiter.consume(rateKey);
-    if (!limit.ok) {
-      throw new RateLimitError(limit.retryAfterSeconds);
-    }
-
+    // Captcha before rate limit and external APIs so bots never consume
+    // Supabase/Resend quota (and do not burn legitimate IP rate-limit slots).
     const captchaOk = await deps.captcha.verify(inquiry.turnstileToken, meta.ip);
     if (!captchaOk) {
       throw new CaptchaError();
+    }
+
+    // IP-scoped limit stops email rotation; ip:email softens shared-NAT collisions.
+    const ipLimit = await deps.rateLimiter.consume(`ip:${meta.ip}`);
+    if (!ipLimit.ok) {
+      throw new RateLimitError(ipLimit.retryAfterSeconds);
+    }
+    const pairLimit = await deps.rateLimiter.consume(
+      `pair:${meta.ip}:${inquiry.email.toLowerCase()}`,
+    );
+    if (!pairLimit.ok) {
+      throw new RateLimitError(pairLimit.retryAfterSeconds);
     }
 
     const record = await deps.repository.save(inquiry);
