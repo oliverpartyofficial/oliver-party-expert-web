@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 
 type TurnstileApi = {
   render: (
@@ -65,8 +65,7 @@ export function TurnstileField({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
-  const onTokenRef = useRef(onToken);
-  onTokenRef.current = onToken;
+  const onTokenEvent = useEffectEvent(onToken);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,7 +75,7 @@ export function TurnstileField({
       try {
         await loadTurnstileScript();
       } catch {
-        onTokenRef.current("");
+        onTokenEvent("");
         return;
       }
       if (cancelled || !window.turnstile || !containerRef.current) return;
@@ -85,9 +84,9 @@ export function TurnstileField({
       widgetIdRef.current = window.turnstile.render(containerRef.current, {
         sitekey: siteKey,
         theme: "light",
-        callback: (token) => onTokenRef.current(token),
-        "expired-callback": () => onTokenRef.current(""),
-        "error-callback": () => onTokenRef.current(""),
+        callback: (token) => onTokenEvent(token),
+        "expired-callback": () => onTokenEvent(""),
+        "error-callback": () => onTokenEvent(""),
       });
     }
 
@@ -105,7 +104,7 @@ export function TurnstileField({
   useEffect(() => {
     if (!resetSignal || !widgetIdRef.current || !window.turnstile) return;
     window.turnstile.reset(widgetIdRef.current);
-    onTokenRef.current("");
+    onTokenEvent("");
   }, [resetSignal]);
 
   return (
