@@ -5,6 +5,7 @@ import {
   RateLimitError,
   ValidationError,
 } from "@/application/submit-inquiry";
+import { allowedSiteOrigins } from "@/infrastructure/env";
 
 type SubmitFn = (
   raw: unknown,
@@ -17,13 +18,13 @@ export function createContactHandler(deps: {
   missingSecrets: () => string[];
 }) {
   function originAllowed(request: Request) {
-    const site = deps.getSiteUrl();
     const origin = request.headers.get("origin");
     const referer = request.headers.get("referer");
     const candidate = origin || referer;
     if (!candidate) return false;
     try {
-      return new URL(candidate).origin === new URL(site).origin;
+      const requestOrigin = new URL(candidate).origin;
+      return allowedSiteOrigins(deps.getSiteUrl()).includes(requestOrigin);
     } catch {
       return false;
     }

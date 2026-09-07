@@ -22,13 +22,20 @@ describe("createTurnstileVerifier", () => {
     vi.unstubAllGlobals();
   });
 
-  it("fails closed when Turnstile keys are missing", async () => {
+  it("skips captcha when Turnstile keys are unset", async () => {
+    const verify = createTurnstileVerifier().verify;
+    await expect(verify("", "1.1.1.1")).resolves.toBe(true);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects partial Turnstile configuration", async () => {
+    process.env.TURNSTILE_SECRET_KEY = "secret";
     const verify = createTurnstileVerifier().verify;
     await expect(verify("token", "1.1.1.1")).resolves.toBe(false);
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it("rejects an empty token even when keys are set", async () => {
+  it("rejects an empty token when keys are set", async () => {
     process.env.TURNSTILE_SECRET_KEY = "secret";
     process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = "site";
     const verify = createTurnstileVerifier().verify;

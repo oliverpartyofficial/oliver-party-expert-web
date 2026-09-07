@@ -68,6 +68,18 @@ describe("contact handler", () => {
     expect(res.status).toBe(403);
   });
 
+  it("allows www when SITE_URL is apex", async () => {
+    const POST = createContactHandler({
+      submit: vi.fn().mockResolvedValue({ ok: true, ignored: false, id: "1" }),
+      getSiteUrl: () => site,
+      missingSecrets: () => [],
+    });
+    const res = await POST(
+      request({}, { origin: "https://www.oliverpartyexpert.com" }),
+    );
+    expect(res.status).toBe(200);
+  });
+
   it("returns 503 when secrets missing", async () => {
     const POST = createContactHandler({
       submit: vi.fn(),
