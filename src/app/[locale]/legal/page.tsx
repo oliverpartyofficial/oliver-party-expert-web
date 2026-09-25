@@ -1,7 +1,24 @@
 import { routing } from "@/i18n/routing";
+import { buildPageMetadata } from "@/seo/metadata";
+import type { AppLocale } from "@/i18n/routing";
 import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) return {};
+  const t = await getTranslations({ locale, namespace: "legal" });
+  return buildPageMetadata(locale as AppLocale, {
+    path: "/legal",
+    title: t("legalTitle"),
+    description: t("legalMetaDescription"),
+  });
+}
 
 export default async function LegalNoticePage({
   params,
