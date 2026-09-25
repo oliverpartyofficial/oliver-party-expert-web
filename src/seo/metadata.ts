@@ -1,17 +1,37 @@
 import type { Metadata } from "next";
 import { COMPANY } from "@/content/company";
 import { getSiteUrl } from "@/infrastructure/env";
+import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 
-export function buildPageMetadata(locale: AppLocale): Metadata {
+/** A non-homepage route's own title/description, keyed by its untranslated pathname. */
+export type PageMetadataOverride = {
+  path: "/privacy" | "/legal" | "/cookies";
+  title: string;
+  description: string;
+};
+
+export function buildPageMetadata(
+  locale: AppLocale,
+  page?: PageMetadataOverride,
+): Metadata {
   const site = getSiteUrl();
   const isEs = locale === "es";
-  const title = isEs
-    ? "DJ, bodas y eventos en Vélez-Málaga | Oliver Party Expert"
-    : "Wedding & event DJ in Vélez-Málaga | Oliver Party Expert";
-  const description = isEs
-    ? "Organización de bodas y eventos en Vélez-Málaga: DJ, iluminación, food trucks, crepes, carrito de helados, fotomatón y neones en Málaga y la Costa del Sol."
-    : "Wedding and event services in Vélez-Málaga: DJ, lighting, food trucks, crepes, ice cream trolley, photobooth and neon décor in Malaga and the Costa del Sol.";
+  const href = page?.path ?? "/";
+  const pathname = getPathname({ locale, href });
+  const esPathname = getPathname({ locale: "es", href });
+  const enPathname = getPathname({ locale: "en", href });
+
+  const title = page
+    ? `${page.title} | ${COMPANY.name}`
+    : isEs
+      ? "DJ, bodas y eventos en Vélez-Málaga | Oliver Party Expert"
+      : "Wedding & event DJ in Vélez-Málaga | Oliver Party Expert";
+  const description = page
+    ? page.description
+    : isEs
+      ? "Organización de bodas y eventos en Vélez-Málaga: DJ, iluminación, food trucks, crepes, carrito de helados, fotomatón y neones en Málaga y la Costa del Sol."
+      : "Wedding and event services in Vélez-Málaga: DJ, lighting, food trucks, crepes, ice cream trolley, photobooth and neon décor in Malaga and the Costa del Sol.";
 
   return {
     metadataBase: new URL(site),
@@ -47,18 +67,18 @@ export function buildPageMetadata(locale: AppLocale): Metadata {
           "crepe station wedding",
         ],
     alternates: {
-      canonical: `/${locale}`,
+      canonical: pathname,
       languages: {
-        "es-ES": "/es",
-        en: "/en",
-        "x-default": "/es",
+        "es-ES": esPathname,
+        en: enPathname,
+        "x-default": esPathname,
       },
     },
     openGraph: {
       type: "website",
       locale: isEs ? "es_ES" : "en_GB",
       alternateLocale: isEs ? ["en_GB"] : ["es_ES"],
-      url: `/${locale}`,
+      url: pathname,
       siteName: COMPANY.name,
       title,
       description,
