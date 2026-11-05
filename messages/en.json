@@ -76,7 +76,18 @@
     "morePhotos": "More photos and reels on",
     "prev": "Previous photo",
     "next": "Next photo",
-    "goTo": "Go to photo {n}"
+    "goTo": "Go to photo {n}",
+    "alt": {
+      "image": "Photo of {event} by Oliver Party Expert",
+      "youtube": "Video of {event} by Oliver Party Expert"
+    },
+    "events": {
+      "wedding": "a wedding",
+      "communion": "a communion",
+      "birthday": "a birthday party",
+      "corporate": "a corporate event",
+      "other": "an event"
+    }
   },
   "reviews": {
     "kicker": "Couples who booked us",

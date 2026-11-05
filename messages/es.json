@@ -76,7 +76,18 @@
     "morePhotos": "Más fotos y reels en",
     "prev": "Foto anterior",
     "next": "Foto siguiente",
-    "goTo": "Ir a la foto {n}"
+    "goTo": "Ir a la foto {n}",
+    "alt": {
+      "image": "Foto de {event} con Oliver Party Expert",
+      "youtube": "Vídeo de {event} con Oliver Party Expert"
+    },
+    "events": {
+      "wedding": "una boda",
+      "communion": "una comunión",
+      "birthday": "un cumpleaños",
+      "corporate": "un evento corporativo",
+      "other": "un evento"
+    }
   },
   "reviews": {
     "kicker": "Parejas que ya confiaron",
