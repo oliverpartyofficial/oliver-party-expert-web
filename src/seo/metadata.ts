@@ -25,13 +25,13 @@ export function buildPageMetadata(
   const title = page
     ? `${page.title} | ${COMPANY.name}`
     : isEs
-      ? "Organización de eventos en Vélez-Málaga | Oliver Party Expert"
-      : "Event planning in Vélez-Málaga | Oliver Party Expert";
+      ? "Organización de eventos, bodas y fiestas | Oliver Party Expert"
+      : "Event planning, weddings and parties | Oliver Party Expert";
   const description = page
     ? page.description
     : isEs
-      ? "Creamos eventos que dejan huella en Vélez-Málaga y la Costa del Sol: música, iluminación, tecnología, gastronomía y entretenimiento para bodas y celebraciones."
-      : "We create events that leave a mark in Vélez-Málaga and the Costa del Sol: music, lighting, technology, catering and entertainment for any celebration.";
+      ? "Creamos eventos que dejan huella: música, iluminación, tecnología, gastronomía y entretenimiento para bodas, eventos corporativos y celebraciones."
+      : "We create events that leave a mark: music, lighting, technology, catering and entertainment for weddings, corporate events and celebrations.";
 
   return {
     metadataBase: new URL(site),
