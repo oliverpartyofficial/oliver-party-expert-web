@@ -148,6 +148,16 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     altEs: "Fotomatón para fiestas y bodas",
     altEn: "Photobooth for parties and weddings",
   },
+  {
+    id: "short-1",
+    kind: "youtube",
+    youtubeId: "ZxkUzuG64zE",
+    poster: "https://i.ytimg.com/vi/ZxkUzuG64zE/hqdefault.jpg",
+    // TODO: placeholder alt text — couldn't fetch the video (youtube.com is
+    // blocked from this sandbox); replace once we know what the short shows.
+    altEs: "Vídeo de Oliver Party Expert en un evento",
+    altEn: "Video of Oliver Party Expert at an event",
+  },
 ];
 
 export const FAQ = [
