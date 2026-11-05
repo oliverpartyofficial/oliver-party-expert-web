@@ -75,7 +75,8 @@
     "playYoutube": "Watch on YouTube",
     "morePhotos": "More photos and reels on",
     "prev": "Previous photo",
-    "next": "Next photo"
+    "next": "Next photo",
+    "goTo": "Go to photo {n}"
   },
   "reviews": {
     "kicker": "Couples who booked us",

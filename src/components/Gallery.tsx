@@ -8,8 +8,13 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 const AUTOPLAY_MS = 4500;
+// Video slides play a muted preview, so give them time to be seen.
+const VIDEO_DWELL_MS = 15000;
 const RESUME_DELAY_MS = 1200;
 const DRAG_THRESHOLD = 70;
+
+const arrowClass =
+  "absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-gold text-lg text-espresso shadow-md transition hover:scale-105 active:scale-95";
 
 export function Gallery() {
   const t = useTranslations("gallery");
@@ -17,18 +22,14 @@ export function Gallery() {
   const total = GALLERY_ITEMS.length;
 
   const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState<string | null>(null);
 
   const stageRef = useRef<HTMLDivElement>(null);
   const paneRefs = useRef<(HTMLDivElement | null)[]>([]);
   const kenBurnsTween = useRef<gsap.core.Tween | null>(null);
   const indexRef = useRef(0);
-  const playingRef = useRef<string | null>(null);
   const pausedRef = useRef(false);
-  const lastManualRef = useRef(0);
 
   indexRef.current = index;
-  playingRef.current = playing;
 
   function mediaOf(i: number) {
     return paneRefs.current[i]?.querySelector<HTMLElement>(".pane-media") ?? null;
@@ -38,9 +39,6 @@ export function Gallery() {
     const prev = indexRef.current;
     const next = ((newIndex % total) + total) % total;
     if (next === prev) return;
-
-    const prevItem = GALLERY_ITEMS[prev];
-    if (prevItem.id === playingRef.current) setPlaying(null);
 
     const outEl = paneRefs.current[prev];
     const inEl = paneRefs.current[next];
@@ -72,15 +70,17 @@ export function Gallery() {
         );
       }
     }
+    indexRef.current = next;
     setIndex(next);
   }
 
-  function navigate(delta: number) {
-    lastManualRef.current = Date.now();
-    goTo(indexRef.current + delta);
+  function pauseFor(ms: number) {
+    pausedRef.current = true;
+    setTimeout(() => {
+      pausedRef.current = false;
+    }, ms);
   }
 
-  // Kick off the first pane's Ken Burns zoom once on mount.
   useEffect(() => {
     const firstMedia = mediaOf(0);
     if (firstMedia) {
@@ -91,20 +91,23 @@ export function Gallery() {
     };
   }, []);
 
-  // Autoplay: ticks on a fixed interval, skipped while paused, a video is
-  // playing, or shortly after a manual interaction.
+  // Autoplay: reschedules on every slide change (manual or automatic), and
+  // waits while the pointer is over the gallery or a drag is in progress.
   useEffect(() => {
-    const id = setInterval(() => {
-      if (pausedRef.current || playingRef.current) return;
-      if (Date.now() - lastManualRef.current < AUTOPLAY_MS) return;
+    const dwell = GALLERY_ITEMS[index].kind === "youtube" ? VIDEO_DWELL_MS : AUTOPLAY_MS;
+    let id: ReturnType<typeof setTimeout>;
+    const tick = () => {
+      if (pausedRef.current) {
+        id = setTimeout(tick, 1000);
+        return;
+      }
       goTo(indexRef.current + 1);
-    }, AUTOPLAY_MS);
-    return () => clearInterval(id);
+    };
+    id = setTimeout(tick, dwell);
+    return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [index]);
 
-  // Drag-to-swipe: translate the whole stage with the pointer, decide
-  // commit vs. snap-back on release.
   useEffect(() => {
     if (!stageRef.current) return;
     gsap.registerPlugin(Draggable);
@@ -116,15 +119,13 @@ export function Gallery() {
       },
       onDragEnd(this: Draggable) {
         const dx = this.x;
-        if (dx < -DRAG_THRESHOLD || dx > DRAG_THRESHOLD) {
+        if (Math.abs(dx) > DRAG_THRESHOLD) {
           gsap.set(stageRef.current, { x: 0 });
-          navigate(dx < 0 ? 1 : -1);
+          goTo(indexRef.current + (dx < 0 ? 1 : -1));
         } else {
           gsap.to(stageRef.current, { x: 0, duration: 0.5, ease: "elastic.out(1, 0.6)" });
         }
-        setTimeout(() => {
-          pausedRef.current = false;
-        }, RESUME_DELAY_MS);
+        pauseFor(RESUME_DELAY_MS);
       },
     });
     return () => {
@@ -136,100 +137,117 @@ export function Gallery() {
   return (
     <section id="galeria" className="bg-cream py-24">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="max-w-2xl">
-            <p className="text-xs uppercase tracking-[0.35em] text-gold-dark">
-              {t("kicker")}
-            </p>
-            <h2 className="mt-3 font-serif text-4xl text-espresso md:text-5xl">
-              {t("title")}
-            </h2>
-            <p className="mt-4 text-muted">{t("lead")}</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <span
-              data-testid="gallery-counter"
-              className="text-xs tracking-[0.2em] text-muted"
+        <div className="max-w-2xl">
+          <p className="text-xs uppercase tracking-[0.35em] text-gold-dark">
+            {t("kicker")}
+          </p>
+          <h2 className="mt-3 font-serif text-4xl text-espresso md:text-5xl">
+            {t("title")}
+          </h2>
+          <p className="mt-4 text-muted">{t("lead")}</p>
+        </div>
+
+        <div
+          className="relative mx-auto mt-10 max-w-xl"
+          onPointerEnter={() => {
+            pausedRef.current = true;
+          }}
+          onPointerLeave={() => pauseFor(RESUME_DELAY_MS)}
+        >
+          <div className="relative">
+            <div
+              ref={stageRef}
+              className="relative aspect-[4/5] max-h-[560px] w-full touch-pan-y overflow-hidden rounded-sm bg-espresso shadow-md"
             >
-              {index + 1} / {total}
-            </span>
+              {GALLERY_ITEMS.map((item, i) => {
+                const alt = locale === "en" ? item.altEn : item.altEs;
+                return (
+                  <div
+                    key={item.id}
+                    ref={(el) => {
+                      paneRefs.current[i] = el;
+                    }}
+                    className="absolute inset-0"
+                    style={{ opacity: i === 0 ? 1 : 0, zIndex: i === 0 ? 2 : 1 }}
+                  >
+                    {item.kind === "youtube" ? (
+                      i === index ? (
+                        <iframe
+                          title={alt}
+                          src={`https://www.youtube-nocookie.com/embed/${item.youtubeId}?autoplay=1&mute=1&loop=1&playlist=${item.youtubeId}&playsinline=1&rel=0&modestbranding=1`}
+                          className="h-full w-full"
+                          allow="autoplay; encrypted-media; picture-in-picture"
+                          allowFullScreen
+                        />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.poster}
+                          alt={alt}
+                          className="h-full w-full object-cover"
+                          draggable={false}
+                          onError={(e) => {
+                            e.currentTarget.style.visibility = "hidden";
+                          }}
+                        />
+                      )
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={item.src}
+                        alt={alt}
+                        className="pane-media h-full w-full object-cover"
+                        draggable={false}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
             <button
               type="button"
               aria-label={t("prev")}
-              onClick={() => { navigate(-1); setTimeout(() => (pausedRef.current = false), RESUME_DELAY_MS); }}
-              className="min-h-11 min-w-11 rounded-full bg-gold px-4 py-2 text-lg text-espresso shadow-sm transition hover:scale-105 active:scale-95"
+              onClick={() => goTo(index - 1)}
+              className={`${arrowClass} left-3 md:-left-16`}
             >
               ←
             </button>
             <button
               type="button"
               aria-label={t("next")}
-              onClick={() => { navigate(1); setTimeout(() => (pausedRef.current = false), RESUME_DELAY_MS); }}
-              className="min-h-11 min-w-11 rounded-full bg-gold px-4 py-2 text-lg text-espresso shadow-sm transition hover:scale-105 active:scale-95"
+              onClick={() => goTo(index + 1)}
+              className={`${arrowClass} right-3 md:-right-16`}
             >
               →
             </button>
           </div>
+
+          <div className="mt-5 flex items-center justify-center gap-4">
+            <div className="flex gap-2">
+              {GALLERY_ITEMS.map((item, i) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  aria-label={t("goTo", { n: i + 1 })}
+                  aria-current={i === index}
+                  onClick={() => goTo(i)}
+                  className={`h-2 rounded-full transition-all ${
+                    i === index ? "w-6 bg-gold-dark" : "w-2 bg-espresso/20"
+                  }`}
+                />
+              ))}
+            </div>
+            <span
+              data-testid="gallery-counter"
+              className="text-xs tracking-[0.2em] text-muted tabular-nums"
+            >
+              {index + 1} / {total}
+            </span>
+          </div>
         </div>
-        <div
-          className="relative mx-auto mt-10 aspect-[4/5] max-h-[560px] max-w-xl touch-pan-y overflow-hidden rounded-sm bg-espresso shadow-md"
-          ref={stageRef}
-          onPointerEnter={() => { pausedRef.current = true; }}
-          onPointerLeave={() => { setTimeout(() => (pausedRef.current = false), RESUME_DELAY_MS); }}
-        >
-          {GALLERY_ITEMS.map((item, i) => {
-            const alt = locale === "en" ? item.altEn : item.altEs;
-            return (
-              <div
-                key={item.id}
-                ref={(el) => { paneRefs.current[i] = el; }}
-                className="absolute inset-0"
-                style={{ opacity: i === 0 ? 1 : 0, zIndex: i === 0 ? 2 : 1 }}
-              >
-                {item.kind === "youtube" ? (
-                  playing === item.id ? (
-                    <iframe
-                      title={item.id}
-                      src={`https://www.youtube-nocookie.com/embed/${item.youtubeId}?autoplay=1&rel=0`}
-                      className="h-full w-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  ) : (
-                    <>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={item.poster}
-                        alt={alt}
-                        className="pane-media h-full w-full object-cover"
-                        draggable={false}
-                      />
-                      <div className="absolute inset-0 bg-espresso/25" />
-                      <button
-                        type="button"
-                        className="absolute inset-0 flex items-center justify-center"
-                        onClick={() => setPlaying(item.id)}
-                      >
-                        <span className="rounded-full bg-gold px-5 py-3 text-sm text-espresso">
-                          {t("playYoutube")}
-                        </span>
-                      </button>
-                    </>
-                  )
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={item.src}
-                    alt={alt}
-                    className="pane-media h-full w-full object-cover"
-                    draggable={false}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </div>
-        <p className="mt-8 text-sm text-muted">
+
+        <p className="mt-8 text-center text-sm text-muted">
           {t("morePhotos")}{" "}
           <a
             className="text-gold-dark underline-offset-4 hover:underline"

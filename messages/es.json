@@ -75,7 +75,8 @@
     "playYoutube": "Ver en YouTube",
     "morePhotos": "Más fotos y reels en",
     "prev": "Foto anterior",
-    "next": "Foto siguiente"
+    "next": "Foto siguiente",
+    "goTo": "Ir a la foto {n}"
   },
   "reviews": {
     "kicker": "Parejas que ya confiaron",
