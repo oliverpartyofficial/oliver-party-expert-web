@@ -25,13 +25,13 @@ export function buildPageMetadata(
   const title = page
     ? `${page.title} | ${COMPANY.name}`
     : isEs
-      ? "DJ, bodas y eventos en Vélez-Málaga | Oliver Party Expert"
-      : "Wedding & event DJ in Vélez-Málaga | Oliver Party Expert";
+      ? "Organización de eventos en Vélez-Málaga | Oliver Party Expert"
+      : "Event planning in Vélez-Málaga | Oliver Party Expert";
   const description = page
     ? page.description
     : isEs
-      ? "Organización de bodas y eventos en Vélez-Málaga: DJ, iluminación, food trucks, crepes, carrito de helados, fotomatón y neones en Málaga y la Costa del Sol."
-      : "Wedding and event services in Vélez-Málaga: DJ, lighting, food trucks, crepes, ice cream trolley, photobooth and neon décor in Malaga and the Costa del Sol.";
+      ? "Creamos eventos que dejan huella en Vélez-Málaga y la Costa del Sol: música, iluminación, tecnología, gastronomía y entretenimiento para bodas y celebraciones."
+      : "We create events that leave a mark in Vélez-Málaga and the Costa del Sol: music, lighting, technology, catering and entertainment for any celebration.";
 
   return {
     metadataBase: new URL(site),
@@ -47,24 +47,25 @@ export function buildPageMetadata(
           "organización de eventos Vélez-Málaga",
           "organizador de eventos Málaga",
           "eventos Costa del Sol",
-          "DJ bodas Málaga",
-          "DJ Vélez-Málaga",
-          "food truck boda Costa del Sol",
-          "fotomatón boda Málaga",
-          "carrito de helados boda",
-          "crepes boda",
-          "neones boda Málaga",
+          "DJ y sonido para bodas",
+          "comuniones y cumpleaños Málaga",
+          "eventos corporativos Málaga",
+          "food truck para eventos",
+          "fotomatón para bodas y eventos",
+          "decoración de bodas y eventos",
+          "carrito de helados para eventos",
         ]
       : [
-          "event planner Malaga",
-          "event services Vélez-Málaga",
-          "party organiser Costa del Sol",
-          "wedding DJ Malaga",
-          "wedding DJ Costa del Sol",
-          "food truck wedding Malaga",
-          "photobooth hire Malaga",
-          "ice cream trolley wedding Spain",
-          "crepe station wedding",
+          "event planning Vélez-Málaga",
+          "event organiser Malaga",
+          "events Costa del Sol",
+          "wedding DJ and sound",
+          "communions and birthdays Malaga",
+          "corporate events Malaga",
+          "food truck for events",
+          "photobooth for weddings and events",
+          "wedding and event decor",
+          "ice cream trolley for events",
         ],
     alternates: {
       canonical: pathname,

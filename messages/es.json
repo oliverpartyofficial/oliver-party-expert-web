@@ -15,8 +15,8 @@
   },
   "hero": {
     "kicker": "Vélez-Málaga · Costa del Sol",
-    "title": "DJ y experiencias para bodas en Málaga",
-    "lead": "Música, luz, food trucks, crepes, helados y fotomatón para que vuestra fiesta se recuerde. Español e inglés, parejas locales e internacionales.",
+    "title": "Creamos eventos que dejan huella",
+    "lead": "Música, iluminación, tecnología, gastronomía y entretenimiento. Todo lo que necesitas para convertir cualquier celebración en una experiencia inolvidable.",
     "cta": "Solicitar presupuesto",
     "secondary": "Ver servicios"
   },
@@ -71,11 +71,12 @@
   "gallery": {
     "kicker": "Historias reales",
     "title": "Fiestas que se quedan",
-    "lead": "Fotos de eventos reales de Oliver Party Expert. Los vídeos los publicamos en redes; más adelante también en YouTube.",
+    "lead": "Fotos y vídeos de eventos reales de Oliver Party Expert. Más contenido en redes y en nuestro canal de YouTube.",
     "playYoutube": "Ver en YouTube",
     "morePhotos": "Más fotos y reels en",
     "prev": "Foto anterior",
-    "next": "Foto siguiente"
+    "next": "Foto siguiente",
+    "goTo": "Ir a la foto {n}"
   },
   "reviews": {
     "kicker": "Parejas que ya confiaron",
