@@ -11,8 +11,8 @@ export async function Hero() {
         alt=""
         className="absolute inset-0 h-full w-full object-cover"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-espresso/90 via-espresso/65 to-espresso/25" />
-      <div className="absolute inset-0 bg-gradient-to-t from-espresso/85 via-espresso/15 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-espresso/95 via-espresso/75 to-espresso/35" />
+      <div className="absolute inset-0 bg-gradient-to-t from-espresso/90 via-espresso/30 to-transparent" />
       <div className="relative mx-auto flex min-h-[88vh] max-w-6xl flex-col justify-end px-4 pb-20 pt-32 md:px-6">
         <p className="text-xs uppercase tracking-[0.35em] text-gold">{t("kicker")}</p>
         <h1 className="mt-4 max-w-3xl font-serif text-4xl leading-tight text-ivory md:text-6xl">
