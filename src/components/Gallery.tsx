@@ -1,6 +1,6 @@
 "use client";
 
-import { GALLERY_ITEMS } from "@/content/catalog";
+import { GALLERY_ITEMS, galleryItemKey, youtubePoster } from "@/content/catalog";
 import { COMPANY } from "@/content/company";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
@@ -160,10 +160,12 @@ export function Gallery() {
               className="relative aspect-[4/5] max-h-[560px] w-full touch-pan-y overflow-hidden rounded-sm bg-espresso shadow-md"
             >
               {GALLERY_ITEMS.map((item, i) => {
-                const alt = locale === "en" ? item.altEn : item.altEs;
+                const alt =
+                  (locale === "en" ? item.altEn : item.altEs) ??
+                  t(`alt.${item.kind}`, { event: t(`events.${item.event ?? "other"}`) });
                 return (
                   <div
-                    key={item.id}
+                    key={galleryItemKey(item)}
                     ref={(el) => {
                       paneRefs.current[i] = el;
                     }}
@@ -182,7 +184,7 @@ export function Gallery() {
                       ) : (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={item.poster}
+                          src={youtubePoster(item)}
                           alt={alt}
                           className="h-full w-full object-cover"
                           draggable={false}
@@ -227,7 +229,7 @@ export function Gallery() {
             <div className="flex gap-2">
               {GALLERY_ITEMS.map((item, i) => (
                 <button
-                  key={item.id}
+                  key={galleryItemKey(item)}
                   type="button"
                   aria-label={t("goTo", { n: i + 1 })}
                   aria-current={i === index}

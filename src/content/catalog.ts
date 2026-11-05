@@ -1,4 +1,4 @@
-import type { ServiceId } from "./company";
+import type { EventType, ServiceId } from "./company";
 
 export interface ServiceContent {
   id: ServiceId;
@@ -71,93 +71,79 @@ export const TESTIMONIALS = [
 ] as const;
 
 /**
- * Gallery is image-first so Meta Reels/embeds cannot break the carousel.
- * Add YouTube later with: { id, kind: "youtube", youtubeId, poster, altEs, altEn }.
+ * Gallery carousel items. To add one, append a line:
+ *   { kind: "image", src: "/media/<file>.jpg", event: "wedding" }
+ *   { kind: "youtube", youtubeId: "<11-char id from the URL>", event: "corporate" }
+ * Alt text is generated from `event` in both languages; pass altEs/altEn
+ * only when you want a more specific description.
  */
-export type GalleryItem =
-  | {
-      id: string;
-      kind: "image";
-      src: string;
-      altEs: string;
-      altEn: string;
-    }
-  | {
-      id: string;
-      kind: "youtube";
-      youtubeId: string;
-      poster: string;
-      altEs: string;
-      altEn: string;
-    };
+export type GalleryItem = {
+  event?: EventType;
+  altEs?: string;
+  altEn?: string;
+} & (
+  | { kind: "image"; src: string }
+  | { kind: "youtube"; youtubeId: string; poster?: string }
+);
+
+export function galleryItemKey(item: GalleryItem): string {
+  return item.kind === "image" ? item.src : item.youtubeId;
+}
+
+export function youtubePoster(item: Extract<GalleryItem, { kind: "youtube" }>): string {
+  return item.poster ?? `https://i.ytimg.com/vi/${item.youtubeId}/hqdefault.jpg`;
+}
 
 export const GALLERY_ITEMS: GalleryItem[] = [
   {
-    id: "phone-booth",
     kind: "image",
     src: "/media/gallery-1.jpg",
     altEs: "Cabina telefónica iluminada de Oliver Party Expert",
     altEn: "Illuminated telephone booth by Oliver Party Expert",
   },
   {
-    id: "fire-show",
     kind: "image",
     src: "/media/gallery-2.jpg",
     altEs: "Espectáculo de fuego con iluminación de escenario",
     altEn: "Fire performance with stage lighting",
   },
   {
-    id: "dancefloor",
     kind: "image",
     src: "/media/gallery-3.jpg",
     altEs: "Pista de baile con luces y sonido Oliver Party Expert",
     altEn: "Dance floor with Oliver Party Expert lights and sound",
   },
   {
-    id: "wish-tree",
     kind: "image",
     src: "/media/gallery-4.jpg",
     altEs: "Árbol de los deseos y ambientación en rojo",
     altEn: "Wish tree décor under red lighting",
   },
   {
-    id: "hotdog-truck",
     kind: "image",
     src: "/media/gallery-5.jpg",
     altEs: "Food truck de hot dogs para eventos",
     altEn: "Hot dog food truck for events",
   },
   {
-    id: "neons",
     kind: "image",
     src: "/media/service-neons.jpg",
     altEs: "Neones y letras luminosas para bodas",
     altEn: "Neon signs and lit letters for weddings",
   },
   {
-    id: "ice-cream",
     kind: "image",
     src: "/media/service-ice-cream.jpg",
     altEs: "Carrito de helados para bodas",
     altEn: "Ice cream trolley for weddings",
   },
   {
-    id: "photobooth",
     kind: "image",
     src: "/media/service-photobooth.jpg",
     altEs: "Fotomatón para fiestas y bodas",
     altEn: "Photobooth for parties and weddings",
   },
-  {
-    id: "short-1",
-    kind: "youtube",
-    youtubeId: "ZxkUzuG64zE",
-    poster: "https://i.ytimg.com/vi/ZxkUzuG64zE/hqdefault.jpg",
-    // TODO: placeholder alt text — couldn't fetch the video (youtube.com is
-    // blocked from this sandbox); replace once we know what the short shows.
-    altEs: "Vídeo de Oliver Party Expert en un evento",
-    altEn: "Video of Oliver Party Expert at an event",
-  },
+  { kind: "youtube", youtubeId: "ZxkUzuG64zE", event: "corporate" },
 ];
 
 export const FAQ = [
