@@ -236,7 +236,8 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
           </div>
 
           <div className="mt-5 flex items-center justify-center gap-4">
-            <div className="flex gap-2">
+            {/* Up to 20 dots: too many for a phone row, where swiping is the main control. */}
+            <div className="hidden gap-2 md:flex">
               {items.map((item, i) => (
                 <button
                   key={galleryItemKey(item)}
@@ -252,7 +253,7 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
             </div>
             <span
               data-testid="gallery-counter"
-              className="text-xs tracking-[0.2em] text-muted tabular-nums"
+              className="whitespace-nowrap text-xs tracking-[0.2em] text-muted tabular-nums"
             >
               {index + 1} / {total}
             </span>
