@@ -3,8 +3,18 @@ export interface YoutubeVideo {
   title: string;
 }
 
-const FEED_URL = "https://www.youtube.com/feeds/videos.xml?channel_id=";
+const FEED_URL = "https://www.youtube.com/feeds/videos.xml?playlist_id=";
 const REVALIDATE_SECONDS = 3600;
+
+/**
+ * YouTube keeps an auto-generated "Shorts" playlist per channel whose id is
+ * the channel id with "UC" swapped for "UUSH". Undocumented but long-stable;
+ * reading it means landscape videos (which would letterbox in the 9:16
+ * gallery) never get in.
+ */
+export function shortsPlaylistId(channelId: string): string | null {
+  return /^UC[\w-]{22}$/.test(channelId) ? "UUSH" + channelId.slice(2) : null;
+}
 
 const ENTITIES: Record<string, string> = {
   "&amp;": "&",
@@ -21,7 +31,7 @@ function decodeXml(text: string): string {
     .replace(/&(amp|lt|gt|quot|apos|#39);/g, (entity) => ENTITIES[entity]);
 }
 
-/** Parses YouTube's public channel Atom feed (latest 15 uploads, shorts included). */
+/** Parses a YouTube Atom feed (a playlist feed returns its latest 15 entries). */
 export function parseYoutubeFeed(xml: string): YoutubeVideo[] {
   const videos: YoutubeVideo[] = [];
   for (const [, entry] of xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)) {
@@ -33,14 +43,15 @@ export function parseYoutubeFeed(xml: string): YoutubeVideo[] {
 }
 
 /**
- * Latest uploads for the gallery. Cached by Next for an hour, so the page
+ * Latest shorts for the gallery. Cached by Next for an hour, so the page
  * regenerates at most hourly instead of calling YouTube per visit. Any
  * failure returns [] — the gallery falls back to the static catalog.
  */
-export async function fetchYoutubeVideos(channelId: string): Promise<YoutubeVideo[]> {
-  if (!channelId) return [];
+export async function fetchYoutubeShorts(channelId: string): Promise<YoutubeVideo[]> {
+  const playlistId = shortsPlaylistId(channelId);
+  if (!playlistId) return [];
   try {
-    const response = await fetch(FEED_URL + encodeURIComponent(channelId), {
+    const response = await fetch(FEED_URL + playlistId, {
       next: { revalidate: REVALIDATE_SECONDS },
     });
     if (!response.ok) return [];

@@ -164,10 +164,11 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
           }}
           onPointerLeave={() => pauseFor(RESUME_DELAY_MS)}
         >
-          <div className="relative">
+          {/* 9:16 to match vertical shorts (no pillarboxing); height-capped so it fits a laptop screen. */}
+          <div className="relative mx-auto w-full max-w-[calc(min(80vh,720px)*9/16)]">
             <div
               ref={stageRef}
-              className="relative aspect-[4/5] max-h-[560px] w-full touch-pan-y overflow-hidden rounded-sm bg-espresso shadow-md"
+              className="relative aspect-[9/16] w-full touch-pan-y overflow-hidden rounded-sm bg-espresso shadow-md"
             >
               {items.map((item, i) => {
                 const alt =

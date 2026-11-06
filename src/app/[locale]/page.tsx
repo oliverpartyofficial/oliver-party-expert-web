@@ -9,7 +9,7 @@ import { Testimonials } from "@/components/Testimonials";
 import { GALLERY_ITEMS } from "@/content/catalog";
 import { COMPANY } from "@/content/company";
 import { mergeGalleryItems } from "@/domain/gallery";
-import { fetchYoutubeVideos } from "@/infrastructure/youtube-feed";
+import { fetchYoutubeShorts } from "@/infrastructure/youtube-feed";
 import { routing } from "@/i18n/routing";
 import { buildJsonLd } from "@/seo/jsonld";
 import { hasLocale } from "next-intl";
@@ -28,7 +28,7 @@ export default async function HomePage({
   const jsonLd = buildJsonLd(locale as AppLocale);
   const galleryItems = mergeGalleryItems(
     GALLERY_ITEMS,
-    await fetchYoutubeVideos(COMPANY.social.youtubeChannelId),
+    await fetchYoutubeShorts(COMPANY.social.youtubeChannelId),
   );
 
   return (

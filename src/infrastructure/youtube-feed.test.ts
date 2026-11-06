@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchYoutubeVideos, parseYoutubeFeed } from "./youtube-feed";
+import { fetchYoutubeShorts, parseYoutubeFeed, shortsPlaylistId } from "./youtube-feed";
+
+const CHANNEL = "UCabcdefghijklmnopqrstuv";
 
 const FEED = `<?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns="http://www.w3.org/2005/Atom">
@@ -30,30 +32,43 @@ describe("parseYoutubeFeed", () => {
   });
 });
 
-describe("fetchYoutubeVideos", () => {
+describe("shortsPlaylistId", () => {
+  it("maps a UC channel id to its UUSH shorts playlist", () => {
+    expect(shortsPlaylistId(CHANNEL)).toBe("UUSHabcdefghijklmnopqrstuv");
+  });
+
+  it("rejects anything that is not a channel id", () => {
+    expect(shortsPlaylistId("")).toBeNull();
+    expect(shortsPlaylistId("@oliverpartyexpert")).toBeNull();
+    expect(shortsPlaylistId("https://www.youtube.com/channel/" + CHANNEL)).toBeNull();
+  });
+});
+
+describe("fetchYoutubeShorts", () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it("skips the request when no channel is configured", async () => {
+  it("skips the request when no valid channel id is configured", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
-    expect(await fetchYoutubeVideos("")).toEqual([]);
+    expect(await fetchYoutubeShorts("")).toEqual([]);
+    expect(await fetchYoutubeShorts("@oliverpartyexpert")).toEqual([]);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("requests the channel feed and parses it", async () => {
+  it("requests the shorts playlist feed and parses it", async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(FEED));
     vi.stubGlobal("fetch", fetchMock);
-    const videos = await fetchYoutubeVideos("UC123");
+    const videos = await fetchYoutubeShorts(CHANNEL);
     expect(fetchMock.mock.calls[0][0]).toBe(
-      "https://www.youtube.com/feeds/videos.xml?channel_id=UC123",
+      "https://www.youtube.com/feeds/videos.xml?playlist_id=UUSHabcdefghijklmnopqrstuv",
     );
     expect(videos.map((v) => v.youtubeId)).toEqual(["ZxkUzuG64zE", "abcDEF12345"]);
   });
 
   it("falls back to no videos when YouTube errors or is unreachable", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("nope", { status: 404 })));
-    expect(await fetchYoutubeVideos("UC123")).toEqual([]);
+    expect(await fetchYoutubeShorts(CHANNEL)).toEqual([]);
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
-    expect(await fetchYoutubeVideos("UC123")).toEqual([]);
+    expect(await fetchYoutubeShorts(CHANNEL)).toEqual([]);
   });
 });
