@@ -49,7 +49,7 @@ When changing contact-form behavior, prefer editing at the layer that owns it (s
 
 Static content — service catalog, testimonials, gallery, FAQ ids — lives in `src/content/` (`company.ts` for company/business facts used in SEO and JSON-LD, `catalog.ts` for services/testimonials/gallery), not in components. `SERVICE_IDS` in `company.ts` is the source of truth for which services exist; `SERVICES` in `catalog.ts` maps each id to its dossier PDF (`public/dossiers/<id>.pdf`) and hero image.
 
-`GalleryItem` (`catalog.ts`) is already a discriminated union of `kind: "image" | "youtube"` — the YouTube variant is defined but `GALLERY_ITEMS` currently only populates `"image"` entries. The CSP in `next.config.ts` already allows `frame-src https://www.youtube-nocookie.com`, so embedding via `youtube-nocookie.com` needs no CSP change.
+The gallery (`components/Gallery.tsx`, GSAP-animated) is built in `app/[locale]/page.tsx` from two sources merged by `domain/gallery.ts`: hand-picked `GALLERY_ITEMS` in `catalog.ts` (photos and videos; alt text is generated from `event` unless `altEs`/`altEn` is set), plus the latest 15 uploads of `COMPANY.social.youtubeChannelId`, read from YouTube's public RSS feed by `infrastructure/youtube-feed.ts` (cached 1h via `fetch` `revalidate`, so the page is ISR; any feed failure yields no videos rather than an error). The client keeps the first item fixed, shuffles the rest on every visit, and caps the carousel at `GALLERY_MAX_ITEMS` (20). The CSP already allows `frame-src https://www.youtube-nocookie.com`; the feed is fetched server-side so needs no CSP entry. This sandbox cannot reach youtube.com, so feed behaviour can only be checked with a stubbed `fetch` locally or on a Vercel preview.
 
 ### SEO
 
