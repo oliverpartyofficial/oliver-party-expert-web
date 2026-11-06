@@ -1,7 +1,8 @@
 "use client";
 
-import { GALLERY_ITEMS, galleryItemKey, youtubePoster } from "@/content/catalog";
+import { galleryItemKey, youtubePoster, type GalleryItem } from "@/content/catalog";
 import { COMPANY } from "@/content/company";
+import { GALLERY_MAX_ITEMS, shuffleGallery } from "@/domain/gallery";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
 import { useLocale, useTranslations } from "next-intl";
@@ -16,20 +17,28 @@ const DRAG_THRESHOLD = 70;
 const arrowClass =
   "absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-gold text-lg text-espresso shadow-md transition hover:scale-105 active:scale-95";
 
-export function Gallery() {
+export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
   const t = useTranslations("gallery");
   const locale = useLocale();
-  const total = GALLERY_ITEMS.length;
 
+  // Server render uses the fixed order; each visit reshuffles after hydration.
+  const [items, setItems] = useState(() => allItems.slice(0, GALLERY_MAX_ITEMS));
   const [index, setIndex] = useState(0);
+  const total = items.length;
 
   const stageRef = useRef<HTMLDivElement>(null);
   const paneRefs = useRef<(HTMLDivElement | null)[]>([]);
   const kenBurnsTween = useRef<gsap.core.Tween | null>(null);
   const indexRef = useRef(0);
   const pausedRef = useRef(false);
+  const totalRef = useRef(total);
 
   indexRef.current = index;
+  totalRef.current = total;
+
+  useEffect(() => {
+    setItems(shuffleGallery(allItems));
+  }, [allItems]);
 
   function mediaOf(i: number) {
     return paneRefs.current[i]?.querySelector<HTMLElement>(".pane-media") ?? null;
@@ -37,7 +46,8 @@ export function Gallery() {
 
   function goTo(newIndex: number) {
     const prev = indexRef.current;
-    const next = ((newIndex % total) + total) % total;
+    const count = totalRef.current;
+    const next = ((newIndex % count) + count) % count;
     if (next === prev) return;
 
     const outEl = paneRefs.current[prev];
@@ -94,7 +104,7 @@ export function Gallery() {
   // Autoplay: reschedules on every slide change (manual or automatic), and
   // waits while the pointer is over the gallery or a drag is in progress.
   useEffect(() => {
-    const dwell = GALLERY_ITEMS[index].kind === "youtube" ? VIDEO_DWELL_MS : AUTOPLAY_MS;
+    const dwell = items[index].kind === "youtube" ? VIDEO_DWELL_MS : AUTOPLAY_MS;
     let id: ReturnType<typeof setTimeout>;
     const tick = () => {
       if (pausedRef.current) {
@@ -154,12 +164,13 @@ export function Gallery() {
           }}
           onPointerLeave={() => pauseFor(RESUME_DELAY_MS)}
         >
-          <div className="relative">
+          {/* 9:16 to match vertical shorts (no pillarboxing); height-capped so it fits a laptop screen. */}
+          <div className="relative mx-auto w-full max-w-[calc(min(80vh,720px)*9/16)]">
             <div
               ref={stageRef}
-              className="relative aspect-[4/5] max-h-[560px] w-full touch-pan-y overflow-hidden rounded-sm bg-espresso shadow-md"
+              className="relative aspect-[9/16] w-full touch-pan-y overflow-hidden rounded-sm bg-espresso shadow-md"
             >
-              {GALLERY_ITEMS.map((item, i) => {
+              {items.map((item, i) => {
                 const alt =
                   (locale === "en" ? item.altEn : item.altEs) ??
                   t(`alt.${item.kind}`, { event: t(`events.${item.event ?? "other"}`) });
@@ -226,8 +237,9 @@ export function Gallery() {
           </div>
 
           <div className="mt-5 flex items-center justify-center gap-4">
-            <div className="flex gap-2">
-              {GALLERY_ITEMS.map((item, i) => (
+            {/* Up to 20 dots: too many for a phone row, where swiping is the main control. */}
+            <div className="hidden gap-2 md:flex">
+              {items.map((item, i) => (
                 <button
                   key={galleryItemKey(item)}
                   type="button"
@@ -242,7 +254,7 @@ export function Gallery() {
             </div>
             <span
               data-testid="gallery-counter"
-              className="text-xs tracking-[0.2em] text-muted tabular-nums"
+              className="whitespace-nowrap text-xs tracking-[0.2em] text-muted tabular-nums"
             >
               {index + 1} / {total}
             </span>
