@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { GalleryItem } from "@/content/catalog";
+import { galleryItemKey, type GalleryItem } from "@/content/catalog";
 import { mergeGalleryItems, shuffleGallery } from "./gallery";
 
 const photo = (src: string): GalleryItem => ({ kind: "image", src });
@@ -20,7 +20,7 @@ describe("mergeGalleryItems", () => {
       { youtubeId: "vid00000002", title: "New" },
       { youtubeId: "vid00000002", title: "New again" },
     ]);
-    expect(merged.map((i) => (i.kind === "youtube" ? i.youtubeId : i.src))).toEqual([
+    expect(merged.map(galleryItemKey)).toEqual([
       "vid00000001",
       "vid00000002",
     ]);

@@ -1,6 +1,6 @@
 "use client";
 
-import { galleryItemKey, youtubePoster, type GalleryItem } from "@/content/catalog";
+import { galleryItemKey, tiktokVideoId, youtubePoster, type GalleryItem } from "@/content/catalog";
 import { COMPANY } from "@/content/company";
 import { GALLERY_MAX_ITEMS, shuffleGallery } from "@/domain/gallery";
 import { gsap } from "gsap";
@@ -104,7 +104,7 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
   // Autoplay: reschedules on every slide change (manual or automatic), and
   // waits while the pointer is over the gallery or a drag is in progress.
   useEffect(() => {
-    const dwell = items[index].kind === "youtube" ? VIDEO_DWELL_MS : AUTOPLAY_MS;
+    const dwell = items[index].kind === "image" ? AUTOPLAY_MS : VIDEO_DWELL_MS;
     let id: ReturnType<typeof setTimeout>;
     const tick = () => {
       if (pausedRef.current) {
@@ -202,6 +202,19 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
                           onError={(e) => {
                             e.currentTarget.style.visibility = "hidden";
                           }}
+                        />
+                      )
+                    ) : item.kind === "tiktok" ? (
+                      // TikTok offers no public thumbnail, so inactive TikTok
+                      // panes stay on the stage's dark background.
+                      i === index &&
+                      tiktokVideoId(item.url) && (
+                        <iframe
+                          title={alt}
+                          src={`https://www.tiktok.com/player/v1/${tiktokVideoId(item.url)}?autoplay=1&loop=1&music_info=0&description=0&rel=0`}
+                          className="h-full w-full"
+                          allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                          allowFullScreen
                         />
                       )
                     ) : (

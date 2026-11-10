@@ -79,7 +79,8 @@
     "goTo": "Ir a la foto {n}",
     "alt": {
       "image": "Foto de {event} con Oliver Party Expert",
-      "youtube": "Vídeo de {event} con Oliver Party Expert"
+      "youtube": "Vídeo de {event} con Oliver Party Expert",
+      "tiktok": "Vídeo de TikTok de {event} con Oliver Party Expert"
     },
     "events": {
       "wedding": "una boda",

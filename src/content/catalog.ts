@@ -74,6 +74,7 @@ export const TESTIMONIALS = [
  * Gallery carousel items. To add one, append a line:
  *   { kind: "image", src: "/media/<file>.jpg", event: "wedding" }
  *   { kind: "youtube", youtubeId: "<11-char id from the URL>", event: "corporate" }
+ *   { kind: "tiktok", url: "https://www.tiktok.com/@<user>/video/<number>", event: "wedding" }
  * Alt text is generated from `event` in both languages; pass altEs/altEn
  * only when you want a more specific description.
  */
@@ -84,10 +85,22 @@ export type GalleryItem = {
 } & (
   | { kind: "image"; src: string }
   | { kind: "youtube"; youtubeId: string; poster?: string }
+  | { kind: "tiktok"; url: string }
 );
 
+/**
+ * The numeric video id from a full TikTok link (browser address bar or
+ * desktop "Copy link"). Short vm.tiktok.com links can't be read offline and
+ * return null.
+ */
+export function tiktokVideoId(url: string): string | null {
+  return url.match(/tiktok\.com\/@[^/]+\/video\/(\d{15,22})/)?.[1] ?? null;
+}
+
 export function galleryItemKey(item: GalleryItem): string {
-  return item.kind === "image" ? item.src : item.youtubeId;
+  if (item.kind === "image") return item.src;
+  if (item.kind === "youtube") return item.youtubeId;
+  return "tiktok:" + (tiktokVideoId(item.url) ?? item.url);
 }
 
 export function youtubePoster(item: Extract<GalleryItem, { kind: "youtube" }>): string {
