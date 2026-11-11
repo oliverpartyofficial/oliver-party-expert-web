@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { deckSlot, ringOffset, shuffleGallery } from "./gallery";
+import { deckSlot, ringOffset, shuffleGallery, wrapsAcrossDeck } from "./gallery";
 
 describe("shuffleGallery", () => {
   const items = Array.from({ length: 30 }, (_, i) => i);
@@ -81,5 +81,22 @@ describe("deckSlot", () => {
   it("hides every neighbour when neighbours are off", () => {
     expect(deckSlot(1, false)).toMatchObject({ opacity: 0, scale: 1, rotateY: 0, x: 0, zIndex: 1 });
     expect(deckSlot(0, false).opacity).toBe(1);
+  });
+});
+
+describe("wrapsAcrossDeck", () => {
+  it("is false for a slide moving one place or staying put", () => {
+    expect(wrapsAcrossDeck(0, 1)).toBe(false);
+    expect(wrapsAcrossDeck(1, 0)).toBe(false);
+    expect(wrapsAcrossDeck(-1, 0)).toBe(false);
+    expect(wrapsAcrossDeck(1, 1)).toBe(false);
+  });
+
+  it("is true when a slide would have to cross the deck to its new place", () => {
+    // 3 slides: on "next", the left neighbour (-1) becomes the right one (+1).
+    expect(wrapsAcrossDeck(-1, 1)).toBe(true);
+    expect(wrapsAcrossDeck(1, -1)).toBe(true);
+    // 4 slides: -1 becomes +2.
+    expect(wrapsAcrossDeck(-1, 2)).toBe(true);
   });
 });

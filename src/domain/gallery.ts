@@ -46,3 +46,12 @@ export function deckSlot(offset: number, neighbours: boolean): DeckSlot {
   }
   return { x: Math.sign(offset) * 110, scale: 0.6, rotateY: 0, opacity: 0, blur: 0, zIndex: 1 };
 }
+
+/**
+ * True when a slide's ring offset jumps by more than one place (it wraps round
+ * the back of the deck). Such a slide should reappear on its new side instead
+ * of sliding across in front of the playing video.
+ */
+export function wrapsAcrossDeck(prevOffset: number, nextOffset: number): boolean {
+  return Math.abs(nextOffset - prevOffset) > 1;
+}

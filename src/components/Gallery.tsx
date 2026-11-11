@@ -3,7 +3,7 @@
 import { galleryItemKey, tiktokVideoId, type GalleryItem } from "@/content/catalog";
 import { COMPANY } from "@/content/company";
 import { GalleryPlaceholder } from "@/components/GalleryPlaceholder";
-import { GALLERY_MAX_ITEMS, deckSlot, ringOffset, shuffleGallery } from "@/domain/gallery";
+import { GALLERY_MAX_ITEMS, deckSlot, ringOffset, shuffleGallery, wrapsAcrossDeck } from "@/domain/gallery";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
 import { useLocale, useTranslations } from "next-intl";
@@ -38,7 +38,8 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
   const total = items.length;
   // Neighbouring slides only show on wide screens and when motion is welcome;
   // otherwise the gallery is a single card that crossfades.
-  const [motion, setMotion] = useState({ wide: false, reduced: false });
+  // `ready` flips after hydration: the player mounts only then, so its load event is never missed.
+  const [motion, setMotion] = useState({ wide: false, reduced: false, ready: false });
   const neighbours = motion.wide && !motion.reduced;
 
   const stageRef = useRef<HTMLDivElement>(null);
@@ -78,7 +79,7 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
   useEffect(() => {
     const wide = window.matchMedia("(min-width: 768px)");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setMotion({ wide: wide.matches, reduced: reduced.matches });
+    const update = () => setMotion({ wide: wide.matches, reduced: reduced.matches, ready: true });
     update();
     wide.addEventListener("change", update);
     reduced.addEventListener("change", update);
@@ -95,8 +96,16 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
     deckReady.current = true;
     paneRefs.current.forEach((pane, i) => {
       if (!pane) return;
-      const slot = deckSlot(ringOffset(i, index, total), neighbours);
+      const offset = ringOffset(i, index, total);
+      const slot = deckSlot(offset, neighbours);
       gsap.set(pane, { zIndex: slot.zIndex, transformPerspective: DECK_PERSPECTIVE });
+      if (!instant && neighbours && wrapsAcrossDeck(ringOffset(i, prevIndex.current, total), offset)) {
+        // Wrapping round the back: appear on the new side rather than cross the deck.
+        gsap.set(pane, { xPercent: slot.x, scale: slot.scale, rotateY: slot.rotateY, filter: `blur(${slot.blur}px)`, opacity: 0 });
+        gsap.to(pane, { opacity: slot.opacity, duration: DECK_MS * 0.7, delay: DECK_MS * 0.3, ease: "power2.out", overwrite: "auto" });
+        if (slot.zIndex !== 10) gsap.set(placeholderRefs.current[i], { opacity: 1 });
+        return;
+      }
       gsap.to(pane, {
         xPercent: slot.x,
         scale: slot.scale,
@@ -258,7 +267,7 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
                   >
                     {/* TikTok offers no public thumbnail: every slide shows a branded card,
                         and only the active one loads a player, which fades the card out. */}
-                    {i === index && tiktokVideoId(item.url) && (
+                    {i === index && motion.ready && tiktokVideoId(item.url) && (
                       <iframe
                         title={alt}
                         src={`https://www.tiktok.com/player/v1/${tiktokVideoId(item.url)}?autoplay=1&loop=1&music_info=0&description=0&rel=0`}
@@ -293,7 +302,7 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
               type="button"
               aria-label={t("prev")}
               onClick={() => goTo(index - 1)}
-              className={`${arrowClass} left-3 ${neighbours ? "md:left-[-60%]" : "md:-left-16"} ${total < 2 ? "hidden" : ""}`}
+              className={`${arrowClass} left-3 ${neighbours ? "md:left-[max(-60%,calc((100%_-_100vw)/2_+_12px))]" : "md:-left-16"} ${total < 2 ? "hidden" : ""}`}
             >
               ←
             </button>
@@ -301,7 +310,7 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
               type="button"
               aria-label={t("next")}
               onClick={() => goTo(index + 1)}
-              className={`${arrowClass} right-3 ${neighbours ? "md:right-[-60%]" : "md:-right-16"} ${total < 2 ? "hidden" : ""}`}
+              className={`${arrowClass} right-3 ${neighbours ? "md:right-[max(-60%,calc((100%_-_100vw)/2_+_12px))]" : "md:-right-16"} ${total < 2 ? "hidden" : ""}`}
             >
               →
             </button>
