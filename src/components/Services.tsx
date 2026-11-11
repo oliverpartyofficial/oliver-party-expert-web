@@ -29,13 +29,15 @@ export async function Services() {
               <p className="mt-3 text-sm leading-relaxed text-muted">
                 {t(`items.${service.id}.text`)}
               </p>
-              <a
-                href={service.dossier}
-                download
-                className="mt-6 inline-flex rounded-full border border-gold px-4 py-2 text-sm text-gold-dark"
-              >
-                {t("download")}
-              </a>
+              {service.dossier && (
+                <a
+                  href={service.dossier}
+                  download
+                  className="mt-6 inline-flex rounded-full border border-gold px-4 py-2 text-sm text-gold-dark"
+                >
+                  {t("download")}
+                </a>
+              )}
             </div>
           </article>
         ))}
