@@ -16,6 +16,15 @@ const DRAG_THRESHOLD = 70;
 const DECK_PERSPECTIVE = 900;
 const DECK_MS = 0.9;
 
+// Fixed positions (not random) so server and client render the same markup.
+const SPARKLES = Array.from({ length: 14 }, (_, i) => ({
+  left: (i * 37 + 11) % 100,
+  top: (i * 53 + 17) % 100,
+  size: 3 + (i % 3) * 2,
+  delay: (i % 7) * 0.6,
+  duration: 3.5 + (i % 4) * 0.8,
+}));
+
 const arrowClass =
   "absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-gold text-lg text-espresso shadow-md transition hover:scale-105 active:scale-95";
 
@@ -36,6 +45,10 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
   const paneRefs = useRef<(HTMLDivElement | null)[]>([]);
   const placeholderRefs = useRef<(HTMLDivElement | null)[]>([]);
   const deckReady = useRef(false);
+  const prevIndex = useRef(0);
+  const glowRef = useRef<HTMLDivElement>(null);
+  const flashRef = useRef<HTMLDivElement>(null);
+  const sparkleRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const indexRef = useRef(0);
   const pausedRef = useRef(false);
   const totalRef = useRef(total);
@@ -97,7 +110,43 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
       // A slide that is not playing shows its placeholder again.
       if (slot.zIndex !== 10) gsap.set(placeholderRefs.current[i], { opacity: 1 });
     });
-  }, [index, total, neighbours, items]);
+
+    // A light flash and a glow colour shift on every slide change.
+    const changed = prevIndex.current !== index;
+    prevIndex.current = index;
+    if (changed && !motion.reduced) {
+      const css = getComputedStyle(document.documentElement);
+      const golds = [css.getPropertyValue("--gold").trim(), css.getPropertyValue("--gold-dark").trim()];
+      gsap.to(glowRef.current, {
+        backgroundColor: golds[index % 2] || golds[0],
+        duration: DECK_MS,
+        ease: "power2.inOut",
+        overwrite: "auto",
+      });
+      gsap.fromTo(
+        flashRef.current,
+        { opacity: 0 },
+        { opacity: 0.5, duration: 0.22, yoyo: true, repeat: 1, ease: "power2.out", overwrite: "auto" },
+      );
+    }
+  }, [index, total, neighbours, items, motion.reduced]);
+
+  // Slow gold sparkles drifting up behind the frame (skipped for reduced motion).
+  useEffect(() => {
+    if (motion.reduced) return;
+    const ctx = gsap.context(() => {
+      sparkleRefs.current.forEach((el, i) => {
+        if (!el) return;
+        const sp = SPARKLES[i];
+        gsap.fromTo(
+          el,
+          { y: 24, opacity: 0 },
+          { y: -90, opacity: 0.85, duration: sp.duration, delay: sp.delay, repeat: -1, yoyo: true, ease: "sine.inOut" },
+        );
+      });
+    });
+    return () => ctx.revert();
+  }, [motion.reduced]);
 
   // Autoplay: reschedules on every slide change (manual or automatic), and
   // waits while the pointer is over the gallery or a drag is in progress.
@@ -162,7 +211,27 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
           onPointerLeave={() => pauseFor(RESUME_DELAY_MS)}
         >
           {/* 9:16 to match vertical shorts (no pillarboxing); height-capped so it fits a laptop screen. */}
-          <div className="relative mx-auto w-full max-w-[calc(min(80vh,720px)*9/16)]">
+          <div className="relative isolate mx-auto w-full max-w-[calc(min(80vh,720px)*9/16)]">
+            {/* Ambient gold glow and sparkles sit behind the deck. */}
+            <div
+              ref={glowRef}
+              aria-hidden
+              className="pointer-events-none absolute -inset-[18%] -z-10 rounded-full bg-gold opacity-30 blur-3xl"
+            />
+            {!motion.reduced && (
+              <div aria-hidden className="pointer-events-none absolute -inset-[35%] -z-10">
+                {SPARKLES.map((sp, i) => (
+                  <span
+                    key={i}
+                    ref={(el) => {
+                      sparkleRefs.current[i] = el;
+                    }}
+                    className="absolute rounded-full bg-gold opacity-0"
+                    style={{ left: `${sp.left}%`, top: `${sp.top}%`, width: sp.size, height: sp.size }}
+                  />
+                ))}
+              </div>
+            )}
             <div
               ref={stageRef}
               className="relative aspect-[9/16] w-full touch-pan-y"
@@ -212,6 +281,12 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
                   </div>
                 );
               })}
+              <div
+                ref={flashRef}
+                aria-hidden
+                className="pointer-events-none absolute inset-0 z-20 rounded-sm opacity-0"
+                style={{ background: "radial-gradient(circle at 50% 40%, rgba(255,240,200,0.9), rgba(196,163,106,0.35) 55%, transparent 80%)" }}
+              />
             </div>
 
             <button
