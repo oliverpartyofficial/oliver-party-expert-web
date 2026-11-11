@@ -99,7 +99,13 @@ export function galleryItemKey(item: GalleryItem): string {
   return tiktokVideoId(item.url) ?? item.url;
 }
 
-export const GALLERY_ITEMS: GalleryItem[] = [];
+export const GALLERY_ITEMS: GalleryItem[] = [
+  { kind: "tiktok", url: "https://www.tiktok.com/@oliverpartyexpert/video/7703115044007005462" },
+  { kind: "tiktok", url: "https://www.tiktok.com/@oliverpartyexpert/video/7701122042149489942" },
+  { kind: "tiktok", url: "https://www.tiktok.com/@oliverpartyexpert/video/7632626625905003798" },
+  { kind: "tiktok", url: "https://www.tiktok.com/@oliverpartyexpert/video/7560794195687050519" },
+  { kind: "tiktok", url: "https://www.tiktok.com/@oliverpartyexpert/video/7498285089403440406" },
+];
 
 export const FAQ = [
   { id: "when" },
