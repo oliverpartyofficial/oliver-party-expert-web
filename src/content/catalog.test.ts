@@ -3,7 +3,7 @@ import en from "../../messages/en.json";
 import es from "../../messages/es.json";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { GALLERY_ITEMS, galleryItemKey, tiktokVideoId } from "./catalog";
+import { GALLERY_ITEMS, SERVICES, galleryItemKey, tiktokVideoId } from "./catalog";
 import { EVENT_TYPES } from "./company";
 
 describe("GALLERY_ITEMS", () => {
@@ -52,5 +52,21 @@ describe("tiktokVideoId", () => {
     expect(tiktokVideoId("https://vm.tiktok.com/ZMabc123/")).toBeNull();
     expect(tiktokVideoId("https://www.tiktok.com/@oliverpartyexpert")).toBeNull();
     expect(tiktokVideoId("")).toBeNull();
+  });
+});
+
+describe("SERVICES dossiers", () => {
+  it("points every dossier at a real PDF in public/dossiers", () => {
+    for (const service of SERVICES) {
+      if (!service.dossier) continue;
+      expect(service.dossier, service.id).toMatch(/^\/dossiers\/[a-z-]+\.pdf$/);
+      expect(existsSync(path.join(process.cwd(), "public", service.dossier)), service.dossier).toBe(true);
+    }
+  });
+
+  it("offers no dossier for the beer tricycle or popcorn", () => {
+    const byId = Object.fromEntries(SERVICES.map((s) => [s.id, s]));
+    expect(byId["beer-tricycle"].dossier).toBeUndefined();
+    expect(byId["popcorn"].dossier).toBeUndefined();
   });
 });

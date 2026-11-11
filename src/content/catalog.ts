@@ -2,7 +2,8 @@ import type { EventType, ServiceId } from "./company";
 
 export interface ServiceContent {
   id: ServiceId;
-  dossier: string;
+  /** PDF under public/dossiers; services without one show no download button. */
+  dossier?: string;
   image: string;
 }
 
@@ -15,8 +16,8 @@ export const SERVICES: ServiceContent[] = [
   { id: "photobooth", dossier: "/dossiers/photobooth.pdf", image: "/media/service-photobooth.jpg" },
   { id: "neons", dossier: "/dossiers/neons.pdf", image: "/media/service-neons.jpg" },
   { id: "furniture", dossier: "/dossiers/furniture.pdf", image: "/media/service-furniture.jpg" },
-  { id: "popcorn", dossier: "/dossiers/popcorn.pdf", image: "/media/service-popcorn.jpg" },
-  { id: "beer-tricycle", dossier: "/dossiers/beer-tricycle.pdf", image: "/media/service-beer.jpg" },
+  { id: "popcorn", image: "/media/service-popcorn.jpg" },
+  { id: "beer-tricycle", image: "/media/service-beer.jpg" },
 ];
 
 export const TESTIMONIALS = [
