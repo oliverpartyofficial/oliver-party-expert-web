@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import en from "../../messages/en.json";
 import es from "../../messages/es.json";
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import path from "node:path";
 import { GALLERY_ITEMS, SERVICES, galleryItemKey, tiktokVideoId } from "./catalog";
 import { EVENT_TYPES } from "./company";
@@ -61,6 +61,14 @@ describe("SERVICES dossiers", () => {
       if (!service.dossier) continue;
       expect(service.dossier, service.id).toMatch(/^\/dossiers\/[a-z-]+\.pdf$/);
       expect(existsSync(path.join(process.cwd(), "public", service.dossier)), service.dossier).toBe(true);
+    }
+  });
+
+  it("keeps every dossier under 2 MB so it downloads quickly on a phone", () => {
+    for (const service of SERVICES) {
+      if (!service.dossier) continue;
+      const bytes = statSync(path.join(process.cwd(), "public", service.dossier)).size;
+      expect(bytes, `${service.dossier} is ${(bytes / 1e6).toFixed(1)} MB`).toBeLessThan(2_000_000);
     }
   });
 
