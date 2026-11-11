@@ -11,6 +11,13 @@ describe("shuffleGallery", () => {
     expect(new Set(out).size).toBe(20);
   });
 
+  it("keeps every item when no cap is given", () => {
+    const out = shuffleGallery(items);
+    expect(out).toHaveLength(30);
+    expect(out[0]).toBe(0);
+    expect(new Set(out).size).toBe(30);
+  });
+
   it("returns every item once when under the cap", () => {
     const out = shuffleGallery(items.slice(0, 5), 20);
     expect([...out].sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4]);

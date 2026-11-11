@@ -1,10 +1,8 @@
-export const GALLERY_MAX_ITEMS = 20;
-
 /**
  * Keeps the first item fixed (it is what renders before hydration), shuffles
- * the rest, and caps the total so the carousel stays a reasonable length.
+ * the rest, and optionally caps the total.
  */
-export function shuffleGallery<T>(items: T[], max = GALLERY_MAX_ITEMS, random = Math.random): T[] {
+export function shuffleGallery<T>(items: T[], max = Infinity, random = Math.random): T[] {
   if (items.length === 0) return [];
   const [first, ...rest] = items;
   for (let i = rest.length - 1; i > 0; i--) {

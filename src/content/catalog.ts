@@ -71,20 +71,20 @@ export const TESTIMONIALS = [
 ] as const;
 
 /**
- * Gallery carousel: hand-picked TikTok videos only. To add one, append a line
- * with the full link (right-click the video on a computer > "Copy link address"):
+ * Gallery carousel: hand-picked TikTok videos plus a few photos. To add one,
+ * append a line. TikToks need the full link (right-click the video on a
+ * computer > "Copy link address"); photo posts (/photo/) can't be embedded.
  *   { kind: "tiktok", url: "https://www.tiktok.com/@oliverpartyexpert/video/<number>", event: "wedding" }
- * Alt text is generated from `event` in both languages; pass altEs/altEn
- * only when you want a more specific description. Up to 20 are shown,
- * shuffled on every visit; with none, the gallery shows only the social links.
+ *   { kind: "image", src: "/media/<file>.jpg", altEs: "…", altEn: "…" }
+ * Alt text is generated from `event` in both languages unless altEs/altEn is
+ * set. The first item is always shown first; the rest are shuffled per visit.
+ * Photos are cropped to the 9:16 frame, so vertical photos work best.
  */
 export type GalleryItem = {
-  kind: "tiktok";
-  url: string;
   event?: EventType;
   altEs?: string;
   altEn?: string;
-};
+} & ({ kind: "tiktok"; url: string } | { kind: "image"; src: string });
 
 /**
  * The numeric video id from a full TikTok link (browser address bar or
@@ -96,13 +96,44 @@ export function tiktokVideoId(url: string): string | null {
 }
 
 export function galleryItemKey(item: GalleryItem): string {
+  if (item.kind === "image") return item.src;
   return tiktokVideoId(item.url) ?? item.url;
 }
 
+const tiktok = (id: string): GalleryItem => ({
+  kind: "tiktok",
+  url: `https://www.tiktok.com/@oliverpartyexpert/video/${id}`,
+});
+
 export const GALLERY_ITEMS: GalleryItem[] = [
-  { kind: "tiktok", url: "https://www.tiktok.com/@oliverpartyexpert/video/7632626625905003798" },
-  { kind: "tiktok", url: "https://www.tiktok.com/@oliverpartyexpert/video/7560794195687050519" },
-  { kind: "tiktok", url: "https://www.tiktok.com/@oliverpartyexpert/video/7498285089403440406" },
+  { kind: "image", src: "/media/gallery-1.jpg", altEs: "Cabina telefónica iluminada de Oliver Party Expert", altEn: "Illuminated telephone booth by Oliver Party Expert" },
+  { kind: "image", src: "/media/gallery-2.jpg", altEs: "Espectáculo de fuego con iluminación de escenario", altEn: "Fire performance with stage lighting" },
+  { kind: "image", src: "/media/gallery-3.jpg", altEs: "Pista de baile con luces y sonido Oliver Party Expert", altEn: "Dance floor with Oliver Party Expert lights and sound" },
+  { kind: "image", src: "/media/gallery-4.jpg", altEs: "Árbol de los deseos y ambientación en rojo", altEn: "Wish tree décor under red lighting" },
+  { kind: "image", src: "/media/gallery-5.jpg", altEs: "Food truck de hot dogs para eventos", altEn: "Hot dog food truck for events" },
+  ...[
+    "7703115044007005462",
+    "7702362153243741462",
+    "7701122042149489942",
+    "7699080616465239318",
+    "7688441547351723286",
+    "7685743954335141142",
+    "7667922180163800342",
+    "7665097489741073686",
+    "7648723474143268118",
+    "7642791081616084246",
+    "7632626625905003798",
+    "7628759637457702166",
+    "7627785522605296918",
+    "7625256921079106838",
+    "7621958057022557462",
+    "7578980518927043862",
+    "7560794195687050519",
+    "7520582941060156694",
+    "7514939621399104790",
+    "7501106404091038998",
+    "7505704344872881430",
+  ].map(tiktok),
 ];
 
 export const FAQ = [

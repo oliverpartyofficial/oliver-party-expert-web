@@ -71,12 +71,15 @@
   "gallery": {
     "kicker": "Historias reales",
     "title": "Fiestas que se quedan",
-    "lead": "Vídeos de eventos reales de Oliver Party Expert. Más contenido en redes y en nuestro canal de YouTube.",
+    "lead": "Vídeos y fotos de eventos reales de Oliver Party Expert. Más contenido en redes y en nuestro canal de YouTube.",
     "morePhotos": "Más vídeos, fotos y reels en",
-    "prev": "Vídeo anterior",
-    "next": "Vídeo siguiente",
-    "goTo": "Ir al vídeo {n}",
-    "alt": "Vídeo de TikTok de {event} con Oliver Party Expert",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "goTo": "Ir al elemento {n}",
+    "alt": {
+      "image": "Foto de {event} con Oliver Party Expert",
+      "tiktok": "Vídeo de TikTok de {event} con Oliver Party Expert"
+    },
     "events": {
       "wedding": "una boda",
       "communion": "una comunión",
