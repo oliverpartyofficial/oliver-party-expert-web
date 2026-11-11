@@ -42,7 +42,7 @@ export function deckSlot(offset: number, neighbours: boolean): DeckSlot {
   if (offset === 0) return { x: 0, scale: 1, rotateY: 0, opacity: 1, blur: 0, zIndex: 10 };
   if (!neighbours) return { x: 0, scale: 1, rotateY: 0, opacity: 0, blur: 0, zIndex: 1 };
   if (Math.abs(offset) === 1) {
-    return { x: offset * 78, scale: 0.78, rotateY: -offset * NEIGHBOUR_TILT_DEG, opacity: 0.45, blur: 3, zIndex: 5 };
+    return { x: offset * 78, scale: 0.78, rotateY: offset * NEIGHBOUR_TILT_DEG, opacity: 0.45, blur: 3, zIndex: 5 };
   }
   return { x: Math.sign(offset) * 110, scale: 0.6, rotateY: 0, opacity: 0, blur: 0, zIndex: 1 };
 }

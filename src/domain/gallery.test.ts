@@ -65,8 +65,10 @@ describe("deckSlot", () => {
   });
 
   it("tilts neighbours towards the centre, mirrored left and right", () => {
-    expect(deckSlot(-1, true).rotateY).toBe(28);
-    expect(deckSlot(1, true).rotateY).toBe(-28);
+    // Positive CSS rotateY pulls the right edge towards the viewer, so the left
+    // neighbour needs a negative angle for its face to turn towards the centre.
+    expect(deckSlot(-1, true).rotateY).toBe(-28);
+    expect(deckSlot(1, true).rotateY).toBe(28);
     expect(deckSlot(1, true)).toMatchObject({ x: 78, scale: 0.78, opacity: 0.45, blur: 3, zIndex: 5 });
     expect(deckSlot(-1, true).x).toBe(-78);
   });
