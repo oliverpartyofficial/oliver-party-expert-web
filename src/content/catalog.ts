@@ -71,79 +71,38 @@ export const TESTIMONIALS = [
 ] as const;
 
 /**
- * Gallery carousel items. To add one, append a line:
- *   { kind: "image", src: "/media/<file>.jpg", event: "wedding" }
- *   { kind: "youtube", youtubeId: "<11-char id from the URL>", event: "corporate" }
+ * Gallery carousel: hand-picked TikTok videos only. To add one, append a line
+ * with the full link (right-click the video on a computer > "Copy link address"):
+ *   { kind: "tiktok", url: "https://www.tiktok.com/@oliverpartyexpert/video/<number>", event: "wedding" }
  * Alt text is generated from `event` in both languages; pass altEs/altEn
- * only when you want a more specific description.
+ * only when you want a more specific description. Up to 20 are shown,
+ * shuffled on every visit; with none, the gallery shows only the social links.
  */
 export type GalleryItem = {
+  kind: "tiktok";
+  url: string;
   event?: EventType;
   altEs?: string;
   altEn?: string;
-} & (
-  | { kind: "image"; src: string }
-  | { kind: "youtube"; youtubeId: string; poster?: string }
-);
+};
 
-export function galleryItemKey(item: GalleryItem): string {
-  return item.kind === "image" ? item.src : item.youtubeId;
+/**
+ * The numeric video id from a full TikTok link (browser address bar or
+ * desktop "Copy link"). Short vm.tiktok.com links can't be read offline and
+ * return null.
+ */
+export function tiktokVideoId(url: string): string | null {
+  return url.match(/tiktok\.com\/@[^/]+\/video\/(\d{15,22})/)?.[1] ?? null;
 }
 
-export function youtubePoster(item: Extract<GalleryItem, { kind: "youtube" }>): string {
-  return item.poster ?? `https://i.ytimg.com/vi/${item.youtubeId}/hqdefault.jpg`;
+export function galleryItemKey(item: GalleryItem): string {
+  return tiktokVideoId(item.url) ?? item.url;
 }
 
 export const GALLERY_ITEMS: GalleryItem[] = [
-  {
-    kind: "image",
-    src: "/media/gallery-1.jpg",
-    altEs: "Cabina telefónica iluminada de Oliver Party Expert",
-    altEn: "Illuminated telephone booth by Oliver Party Expert",
-  },
-  {
-    kind: "image",
-    src: "/media/gallery-2.jpg",
-    altEs: "Espectáculo de fuego con iluminación de escenario",
-    altEn: "Fire performance with stage lighting",
-  },
-  {
-    kind: "image",
-    src: "/media/gallery-3.jpg",
-    altEs: "Pista de baile con luces y sonido Oliver Party Expert",
-    altEn: "Dance floor with Oliver Party Expert lights and sound",
-  },
-  {
-    kind: "image",
-    src: "/media/gallery-4.jpg",
-    altEs: "Árbol de los deseos y ambientación en rojo",
-    altEn: "Wish tree décor under red lighting",
-  },
-  {
-    kind: "image",
-    src: "/media/gallery-5.jpg",
-    altEs: "Food truck de hot dogs para eventos",
-    altEn: "Hot dog food truck for events",
-  },
-  {
-    kind: "image",
-    src: "/media/service-neons.jpg",
-    altEs: "Neones y letras luminosas para bodas",
-    altEn: "Neon signs and lit letters for weddings",
-  },
-  {
-    kind: "image",
-    src: "/media/service-ice-cream.jpg",
-    altEs: "Carrito de helados para bodas",
-    altEn: "Ice cream trolley for weddings",
-  },
-  {
-    kind: "image",
-    src: "/media/service-photobooth.jpg",
-    altEs: "Fotomatón para fiestas y bodas",
-    altEn: "Photobooth for parties and weddings",
-  },
-  { kind: "youtube", youtubeId: "ZxkUzuG64zE", event: "corporate" },
+  { kind: "tiktok", url: "https://www.tiktok.com/@oliverpartyexpert/video/7632626625905003798" },
+  { kind: "tiktok", url: "https://www.tiktok.com/@oliverpartyexpert/video/7560794195687050519" },
+  { kind: "tiktok", url: "https://www.tiktok.com/@oliverpartyexpert/video/7498285089403440406" },
 ];
 
 export const FAQ = [

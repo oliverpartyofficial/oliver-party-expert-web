@@ -1,75 +1,70 @@
 "use client";
 
-import { GALLERY_ITEMS, galleryItemKey, youtubePoster } from "@/content/catalog";
+import { galleryItemKey, tiktokVideoId, type GalleryItem } from "@/content/catalog";
 import { COMPANY } from "@/content/company";
+import { GalleryPlaceholder } from "@/components/GalleryPlaceholder";
+import { GALLERY_MAX_ITEMS, deckSlot, ringOffset, shuffleGallery, wrapsAcrossDeck } from "@/domain/gallery";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
-const AUTOPLAY_MS = 4500;
-// Video slides play a muted preview, so give them time to be seen.
+// Slides are TikTok videos, so give each one time to be watched.
 const VIDEO_DWELL_MS = 15000;
 const RESUME_DELAY_MS = 1200;
 const DRAG_THRESHOLD = 70;
+const DECK_PERSPECTIVE = 900;
+const DECK_MS = 0.9;
+
+// Fixed positions (not random) so server and client render the same markup.
+const SPARKLES = Array.from({ length: 14 }, (_, i) => ({
+  left: (i * 37 + 11) % 100,
+  top: (i * 53 + 17) % 100,
+  size: 3 + (i % 3) * 2,
+  delay: (i % 7) * 0.6,
+  duration: 3.5 + (i % 4) * 0.8,
+}));
 
 const arrowClass =
   "absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-gold text-lg text-espresso shadow-md transition hover:scale-105 active:scale-95";
 
-export function Gallery() {
+export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
   const t = useTranslations("gallery");
   const locale = useLocale();
-  const total = GALLERY_ITEMS.length;
 
+  // Server render uses the fixed order; each visit reshuffles after hydration.
+  const [items, setItems] = useState(() => allItems.slice(0, GALLERY_MAX_ITEMS));
   const [index, setIndex] = useState(0);
+  const total = items.length;
+  // Neighbouring slides only show on wide screens and when motion is welcome;
+  // otherwise the gallery is a single card that crossfades.
+  // `ready` flips after hydration: the player mounts only then, so its load event is never missed.
+  const [motion, setMotion] = useState({ wide: false, reduced: false, ready: false });
+  const neighbours = motion.wide && !motion.reduced;
 
   const stageRef = useRef<HTMLDivElement>(null);
   const paneRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const kenBurnsTween = useRef<gsap.core.Tween | null>(null);
+  const placeholderRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const deckReady = useRef(false);
+  const prevIndex = useRef(0);
+  const glowRef = useRef<HTMLDivElement>(null);
+  const flashRef = useRef<HTMLDivElement>(null);
+  const sparkleRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const indexRef = useRef(0);
   const pausedRef = useRef(false);
+  const totalRef = useRef(total);
 
   indexRef.current = index;
+  totalRef.current = total;
 
-  function mediaOf(i: number) {
-    return paneRefs.current[i]?.querySelector<HTMLElement>(".pane-media") ?? null;
-  }
+  useEffect(() => {
+    setItems(shuffleGallery(allItems));
+  }, [allItems]);
 
   function goTo(newIndex: number) {
-    const prev = indexRef.current;
-    const next = ((newIndex % total) + total) % total;
-    if (next === prev) return;
-
-    const outEl = paneRefs.current[prev];
-    const inEl = paneRefs.current[next];
-    const outMedia = mediaOf(prev);
-    const inMedia = mediaOf(next);
-
-    kenBurnsTween.current?.kill();
-
-    if (outEl) {
-      gsap.to(outEl, { opacity: 0, duration: 0.9, ease: "power2.inOut", zIndex: 1 });
-      if (outMedia) gsap.to(outMedia, { scale: 1.06, filter: "blur(8px)", duration: 0.9, ease: "power2.inOut" });
-    }
-    if (inEl) {
-      gsap.set(inEl, { opacity: 0, zIndex: 2 });
-      gsap.to(inEl, { opacity: 1, duration: 1, ease: "power2.out" });
-      if (inMedia) {
-        gsap.fromTo(
-          inMedia,
-          { scale: 1.1, filter: "blur(8px)" },
-          {
-            scale: 1,
-            filter: "blur(0px)",
-            duration: 1,
-            ease: "power2.out",
-            onComplete: () => {
-              kenBurnsTween.current = gsap.to(inMedia, { scale: 1.08, duration: 6, ease: "none" });
-            },
-          },
-        );
-      }
-    }
+    const count = totalRef.current;
+    const next = ((newIndex % count) + count) % count;
+    if (next === indexRef.current) return;
     indexRef.current = next;
     setIndex(next);
   }
@@ -82,19 +77,90 @@ export function Gallery() {
   }
 
   useEffect(() => {
-    const firstMedia = mediaOf(0);
-    if (firstMedia) {
-      kenBurnsTween.current = gsap.to(firstMedia, { scale: 1.08, duration: 6, ease: "none" });
-    }
+    const wide = window.matchMedia("(min-width: 768px)");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setMotion({ wide: wide.matches, reduced: reduced.matches, ready: true });
+    update();
+    wide.addEventListener("change", update);
+    reduced.addEventListener("change", update);
     return () => {
-      kenBurnsTween.current?.kill();
+      wide.removeEventListener("change", update);
+      reduced.removeEventListener("change", update);
     };
   }, []);
+
+  // Lays the deck out: every slide moves to the transform for its distance
+  // from the current one. The first run snaps; later runs animate.
+  useEffect(() => {
+    const instant = !deckReady.current;
+    deckReady.current = true;
+    paneRefs.current.forEach((pane, i) => {
+      if (!pane) return;
+      const offset = ringOffset(i, index, total);
+      const slot = deckSlot(offset, neighbours);
+      gsap.set(pane, { zIndex: slot.zIndex, transformPerspective: DECK_PERSPECTIVE });
+      if (!instant && neighbours && wrapsAcrossDeck(ringOffset(i, prevIndex.current, total), offset)) {
+        // Wrapping round the back: appear on the new side rather than cross the deck.
+        gsap.set(pane, { xPercent: slot.x, scale: slot.scale, rotateY: slot.rotateY, filter: `blur(${slot.blur}px)`, opacity: 0 });
+        gsap.to(pane, { opacity: slot.opacity, duration: DECK_MS * 0.7, delay: DECK_MS * 0.3, ease: "power2.out", overwrite: "auto" });
+        if (slot.zIndex !== 10) gsap.set(placeholderRefs.current[i], { opacity: 1 });
+        return;
+      }
+      gsap.to(pane, {
+        xPercent: slot.x,
+        scale: slot.scale,
+        rotateY: slot.rotateY,
+        opacity: slot.opacity,
+        filter: `blur(${slot.blur}px)`,
+        duration: instant ? 0 : neighbours ? DECK_MS : 0.6,
+        ease: neighbours ? "back.out(1.15)" : "power2.inOut",
+        overwrite: "auto",
+      });
+      // A slide that is not playing shows its placeholder again.
+      if (slot.zIndex !== 10) gsap.set(placeholderRefs.current[i], { opacity: 1 });
+    });
+
+    // A light flash and a glow colour shift on every slide change.
+    const changed = prevIndex.current !== index;
+    prevIndex.current = index;
+    if (changed && !motion.reduced) {
+      const css = getComputedStyle(document.documentElement);
+      const golds = [css.getPropertyValue("--gold").trim(), css.getPropertyValue("--gold-dark").trim()];
+      gsap.to(glowRef.current, {
+        backgroundColor: golds[index % 2] || golds[0],
+        duration: DECK_MS,
+        ease: "power2.inOut",
+        overwrite: "auto",
+      });
+      gsap.fromTo(
+        flashRef.current,
+        { opacity: 0 },
+        { opacity: 0.5, duration: 0.22, yoyo: true, repeat: 1, ease: "power2.out", overwrite: "auto" },
+      );
+    }
+  }, [index, total, neighbours, items, motion.reduced]);
+
+  // Slow gold sparkles drifting up behind the frame (skipped for reduced motion).
+  useEffect(() => {
+    if (motion.reduced) return;
+    const ctx = gsap.context(() => {
+      sparkleRefs.current.forEach((el, i) => {
+        if (!el) return;
+        const sp = SPARKLES[i];
+        gsap.fromTo(
+          el,
+          { y: 24, opacity: 0 },
+          { y: -90, opacity: 0.85, duration: sp.duration, delay: sp.delay, repeat: -1, yoyo: true, ease: "sine.inOut" },
+        );
+      });
+    });
+    return () => ctx.revert();
+  }, [motion.reduced]);
 
   // Autoplay: reschedules on every slide change (manual or automatic), and
   // waits while the pointer is over the gallery or a drag is in progress.
   useEffect(() => {
-    const dwell = GALLERY_ITEMS[index].kind === "youtube" ? VIDEO_DWELL_MS : AUTOPLAY_MS;
+    if (total < 2) return;
     let id: ReturnType<typeof setTimeout>;
     const tick = () => {
       if (pausedRef.current) {
@@ -103,10 +169,9 @@ export function Gallery() {
       }
       goTo(indexRef.current + 1);
     };
-    id = setTimeout(tick, dwell);
+    id = setTimeout(tick, VIDEO_DWELL_MS);
     return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index]);
+  }, [index, total]);
 
   useEffect(() => {
     if (!stageRef.current) return;
@@ -131,11 +196,10 @@ export function Gallery() {
     return () => {
       draggable.kill();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <section id="galeria" className="bg-cream py-24">
+    <section id="galeria" className="overflow-x-clip bg-cream py-24">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <div className="max-w-2xl">
           <p className="text-xs uppercase tracking-[0.35em] text-gold-dark">
@@ -147,6 +211,7 @@ export function Gallery() {
           <p className="mt-4 text-muted">{t("lead")}</p>
         </div>
 
+        {total > 0 && (
         <div
           className="relative mx-auto mt-10 max-w-xl"
           onPointerEnter={() => {
@@ -154,64 +219,90 @@ export function Gallery() {
           }}
           onPointerLeave={() => pauseFor(RESUME_DELAY_MS)}
         >
-          <div className="relative">
+          {/* 9:16 to match vertical shorts (no pillarboxing); height-capped so it fits a laptop screen. */}
+          <div className="relative isolate mx-auto w-full max-w-[calc(min(80vh,720px)*9/16)]">
+            {/* Ambient gold glow and sparkles sit behind the deck. */}
+            <div
+              ref={glowRef}
+              aria-hidden
+              className="pointer-events-none absolute -inset-[18%] -z-10 rounded-full bg-gold opacity-30 blur-3xl"
+            />
+            {!motion.reduced && (
+              <div aria-hidden className="pointer-events-none absolute -inset-[35%] -z-10">
+                {SPARKLES.map((sp, i) => (
+                  <span
+                    key={i}
+                    ref={(el) => {
+                      sparkleRefs.current[i] = el;
+                    }}
+                    className="absolute rounded-full bg-gold opacity-0"
+                    style={{ left: `${sp.left}%`, top: `${sp.top}%`, width: sp.size, height: sp.size }}
+                  />
+                ))}
+              </div>
+            )}
             <div
               ref={stageRef}
-              className="relative aspect-[4/5] max-h-[560px] w-full touch-pan-y overflow-hidden rounded-sm bg-espresso shadow-md"
+              className="relative aspect-[9/16] w-full touch-pan-y"
             >
-              {GALLERY_ITEMS.map((item, i) => {
+              {items.map((item, i) => {
                 const alt =
                   (locale === "en" ? item.altEn : item.altEs) ??
-                  t(`alt.${item.kind}`, { event: t(`events.${item.event ?? "other"}`) });
+                  t("alt", { event: t(`events.${item.event ?? "other"}`) });
+                const offset = ringOffset(i, index, total);
+                const clickable = neighbours && Math.abs(offset) === 1;
                 return (
                   <div
                     key={galleryItemKey(item)}
                     ref={(el) => {
                       paneRefs.current[i] = el;
                     }}
-                    className="absolute inset-0"
-                    style={{ opacity: i === 0 ? 1 : 0, zIndex: i === 0 ? 2 : 1 }}
+                    // Neighbours are decorative: hidden from assistive tech (they hold nothing focusable).
+                    aria-hidden={offset !== 0 || undefined}
+                    onClick={clickable ? () => goTo(i) : undefined}
+                    className={`absolute inset-0 overflow-hidden rounded-sm bg-espresso shadow-md ${
+                      clickable ? "cursor-pointer" : offset !== 0 ? "pointer-events-none" : ""
+                    }`}
+                    style={{ opacity: i === 0 ? 1 : 0, zIndex: i === 0 ? 10 : 1 }}
                   >
-                    {item.kind === "youtube" ? (
-                      i === index ? (
-                        <iframe
-                          title={alt}
-                          src={`https://www.youtube-nocookie.com/embed/${item.youtubeId}?autoplay=1&mute=1&loop=1&playlist=${item.youtubeId}&playsinline=1&rel=0&modestbranding=1`}
-                          className="h-full w-full"
-                          allow="autoplay; encrypted-media; picture-in-picture"
-                          allowFullScreen
-                        />
-                      ) : (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={youtubePoster(item)}
-                          alt={alt}
-                          className="h-full w-full object-cover"
-                          draggable={false}
-                          onError={(e) => {
-                            e.currentTarget.style.visibility = "hidden";
-                          }}
-                        />
-                      )
-                    ) : (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={item.src}
-                        alt={alt}
-                        className="pane-media h-full w-full object-cover"
-                        draggable={false}
+                    {/* TikTok offers no public thumbnail: every slide shows a branded card,
+                        and only the active one loads a player, which fades the card out. */}
+                    {i === index && motion.ready && tiktokVideoId(item.url) && (
+                      <iframe
+                        title={alt}
+                        src={`https://www.tiktok.com/player/v1/${tiktokVideoId(item.url)}?autoplay=1&loop=1&music_info=0&description=0&rel=0`}
+                        className="h-full w-full"
+                        allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                        allowFullScreen
+                        onLoad={() =>
+                          gsap.to(placeholderRefs.current[i], { opacity: 0, duration: 0.4, overwrite: "auto" })
+                        }
                       />
                     )}
+                    <div
+                      ref={(el) => {
+                        placeholderRefs.current[i] = el;
+                      }}
+                      className="pointer-events-none absolute inset-0"
+                    >
+                      <GalleryPlaceholder label={alt} />
+                    </div>
                   </div>
                 );
               })}
+              <div
+                ref={flashRef}
+                aria-hidden
+                className="pointer-events-none absolute inset-0 z-20 rounded-sm opacity-0"
+                style={{ background: "radial-gradient(circle at 50% 40%, rgba(255,240,200,0.9), rgba(196,163,106,0.35) 55%, transparent 80%)" }}
+              />
             </div>
 
             <button
               type="button"
               aria-label={t("prev")}
               onClick={() => goTo(index - 1)}
-              className={`${arrowClass} left-3 md:-left-16`}
+              className={`${arrowClass} left-3 ${neighbours ? "md:left-[max(-60%,calc((100%_-_100vw)/2_+_12px))]" : "md:-left-16"} ${total < 2 ? "hidden" : ""}`}
             >
               ←
             </button>
@@ -219,15 +310,16 @@ export function Gallery() {
               type="button"
               aria-label={t("next")}
               onClick={() => goTo(index + 1)}
-              className={`${arrowClass} right-3 md:-right-16`}
+              className={`${arrowClass} right-3 ${neighbours ? "md:right-[max(-60%,calc((100%_-_100vw)/2_+_12px))]" : "md:-right-16"} ${total < 2 ? "hidden" : ""}`}
             >
               →
             </button>
           </div>
 
           <div className="mt-5 flex items-center justify-center gap-4">
-            <div className="flex gap-2">
-              {GALLERY_ITEMS.map((item, i) => (
+            {/* Up to 20 dots: too many for a phone row, where swiping is the main control. */}
+            <div className="hidden gap-2 md:flex">
+              {items.map((item, i) => (
                 <button
                   key={galleryItemKey(item)}
                   type="button"
@@ -242,12 +334,13 @@ export function Gallery() {
             </div>
             <span
               data-testid="gallery-counter"
-              className="text-xs tracking-[0.2em] text-muted tabular-nums"
+              className="whitespace-nowrap text-xs tracking-[0.2em] text-muted tabular-nums"
             >
               {index + 1} / {total}
             </span>
           </div>
         </div>
+        )}
 
         <p className="mt-8 text-center text-sm text-muted">
           {t("morePhotos")}{" "}
@@ -267,6 +360,15 @@ export function Gallery() {
             target="_blank"
           >
             Facebook
+          </a>{" "}
+          ·{" "}
+          <a
+            className="text-gold-dark underline-offset-4 hover:underline"
+            href={COMPANY.social.youtube}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            YouTube
           </a>
         </p>
       </div>

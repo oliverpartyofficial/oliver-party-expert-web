@@ -6,6 +6,7 @@ import { Hero } from "@/components/Hero";
 import { Location } from "@/components/Location";
 import { Services } from "@/components/Services";
 import { Testimonials } from "@/components/Testimonials";
+import { GALLERY_ITEMS } from "@/content/catalog";
 import { routing } from "@/i18n/routing";
 import { buildJsonLd } from "@/seo/jsonld";
 import { hasLocale } from "next-intl";
@@ -31,7 +32,7 @@ export default async function HomePage({
       />
       <Hero />
       <Services />
-      <Gallery />
+      <Gallery items={GALLERY_ITEMS} />
       <Testimonials />
       <About />
       <Location />

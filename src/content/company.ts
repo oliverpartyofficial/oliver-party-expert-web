@@ -23,6 +23,7 @@ export const COMPANY = {
     facebook: "https://www.facebook.com/olivergarciadjevents",
     instagram: "https://www.instagram.com/oliverpartyexpert/",
     instagramHandle: "@oliverpartyexpert",
+    youtube: "https://www.youtube.com/@OliverPartyExpert",
   },
   domain: "https://oliverpartyexpert.com",
   priceRange: "€€",

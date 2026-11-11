@@ -46,3 +46,30 @@ h3,
   background: var(--gold);
   color: var(--espresso);
 }
+
+/* Gallery placeholder: slow gold light sweeping across a dark card. */
+@keyframes gallery-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+.gallery-shimmer {
+  background-image: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgba(196, 163, 106, 0.22) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: gallery-shimmer 3.2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-shimmer {
+    animation: none;
+  }
+}
