@@ -71,12 +71,15 @@
   "gallery": {
     "kicker": "Real celebrations",
     "title": "Parties that stay with you",
-    "lead": "Real event videos from Oliver Party Expert. More on social media and our YouTube channel.",
+    "lead": "Real event videos and photos from Oliver Party Expert. More on social media and our YouTube channel.",
     "morePhotos": "More videos, photos and reels on",
-    "prev": "Previous video",
-    "next": "Next video",
-    "goTo": "Go to video {n}",
-    "alt": "TikTok video of {event} by Oliver Party Expert",
+    "prev": "Previous",
+    "next": "Next",
+    "goTo": "Go to item {n}",
+    "alt": {
+      "image": "Photo of {event} by Oliver Party Expert",
+      "tiktok": "TikTok video of {event} by Oliver Party Expert"
+    },
     "events": {
       "wedding": "a wedding",
       "communion": "a communion",

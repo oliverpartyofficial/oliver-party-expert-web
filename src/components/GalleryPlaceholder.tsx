@@ -2,13 +2,13 @@
  * Branded card shown in a gallery slide until its TikTok player has loaded
  * (TikTok offers no thumbnail, so this replaces what would be a black pane).
  */
-export function GalleryPlaceholder({ label }: { label: string }) {
+export function GalleryPlaceholder({ label, shimmer = true }: { label: string; shimmer?: boolean }) {
   return (
     <div
       data-testid="gallery-placeholder"
       className="absolute inset-0 flex flex-col items-center justify-center gap-4 overflow-hidden bg-gradient-to-b from-espresso via-[#3a2f22] to-espresso"
     >
-      <div className="gallery-shimmer absolute inset-0" aria-hidden />
+      {shimmer && <div className="gallery-shimmer absolute inset-0" aria-hidden />}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/logo.jpg"

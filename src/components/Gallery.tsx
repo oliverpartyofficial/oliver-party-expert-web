@@ -3,14 +3,15 @@
 import { galleryItemKey, tiktokVideoId, type GalleryItem } from "@/content/catalog";
 import { COMPANY } from "@/content/company";
 import { GalleryPlaceholder } from "@/components/GalleryPlaceholder";
-import { GALLERY_MAX_ITEMS, deckSlot, ringOffset, shuffleGallery, wrapsAcrossDeck } from "@/domain/gallery";
+import { deckSlot, ringOffset, shuffleGallery, wrapsAcrossDeck } from "@/domain/gallery";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
-// Slides are TikTok videos, so give each one time to be watched.
+// TikTok slides get time to be watched; photos move on sooner.
 const VIDEO_DWELL_MS = 15000;
+const PHOTO_DWELL_MS = 5000;
 const RESUME_DELAY_MS = 1200;
 const DRAG_THRESHOLD = 70;
 const DECK_PERSPECTIVE = 900;
@@ -33,7 +34,7 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
   const locale = useLocale();
 
   // Server render uses the fixed order; each visit reshuffles after hydration.
-  const [items, setItems] = useState(() => allItems.slice(0, GALLERY_MAX_ITEMS));
+  const [items, setItems] = useState(allItems);
   const [index, setIndex] = useState(0);
   const total = items.length;
   // Neighbouring slides only show on wide screens and when motion is welcome;
@@ -103,7 +104,8 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
         // Wrapping round the back: appear on the new side rather than cross the deck.
         gsap.set(pane, { xPercent: slot.x, scale: slot.scale, rotateY: slot.rotateY, filter: `blur(${slot.blur}px)`, opacity: 0 });
         gsap.to(pane, { opacity: slot.opacity, duration: DECK_MS * 0.7, delay: DECK_MS * 0.3, ease: "power2.out", overwrite: "auto" });
-        if (slot.zIndex !== 10) gsap.set(placeholderRefs.current[i], { opacity: 1 });
+        const ph = placeholderRefs.current[i];
+        if (slot.zIndex !== 10 && ph) gsap.set(ph, { opacity: 1 });
         return;
       }
       gsap.to(pane, {
@@ -117,7 +119,8 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
         overwrite: "auto",
       });
       // A slide that is not playing shows its placeholder again.
-      if (slot.zIndex !== 10) gsap.set(placeholderRefs.current[i], { opacity: 1 });
+      const ph = placeholderRefs.current[i];
+      if (slot.zIndex !== 10 && ph) gsap.set(ph, { opacity: 1 });
     });
 
     // A light flash and a glow colour shift on every slide change.
@@ -169,9 +172,9 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
       }
       goTo(indexRef.current + 1);
     };
-    id = setTimeout(tick, VIDEO_DWELL_MS);
+    id = setTimeout(tick, items[index]?.kind === "image" ? PHOTO_DWELL_MS : VIDEO_DWELL_MS);
     return () => clearTimeout(id);
-  }, [index, total]);
+  }, [index, total, items]);
 
   useEffect(() => {
     if (!stageRef.current) return;
@@ -248,7 +251,7 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
               {items.map((item, i) => {
                 const alt =
                   (locale === "en" ? item.altEn : item.altEs) ??
-                  t("alt", { event: t(`events.${item.event ?? "other"}`) });
+                  t(`alt.${item.kind}`, { event: t(`events.${item.event ?? "other"}`) });
                 const offset = ringOffset(i, index, total);
                 const clickable = neighbours && Math.abs(offset) === 1;
                 return (
@@ -265,7 +268,18 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
                     }`}
                     style={{ opacity: i === 0 ? 1 : 0, zIndex: i === 0 ? 10 : 1 }}
                   >
-                    {/* TikTok offers no public thumbnail: every slide shows a branded card,
+                    {item.kind === "image" ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={item.src}
+                        alt={alt}
+                        loading={i === 0 ? "eager" : "lazy"}
+                        className="h-full w-full object-cover"
+                        draggable={false}
+                      />
+                    ) : (
+                    <>
+                    {/* TikTok offers no public thumbnail: its slide shows a branded card,
                         and only the active one loads a player, which fades the card out. */}
                     {i === index && motion.ready && tiktokVideoId(item.url) && (
                       <iframe
@@ -285,8 +299,10 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
                       }}
                       className="pointer-events-none absolute inset-0"
                     >
-                      <GalleryPlaceholder label={alt} />
+                      <GalleryPlaceholder label={alt} shimmer={Math.abs(offset) <= 1} />
                     </div>
+                    </>
+                    )}
                   </div>
                 );
               })}
