@@ -2,7 +2,8 @@
 
 import { galleryItemKey, tiktokVideoId, type GalleryItem } from "@/content/catalog";
 import { COMPANY } from "@/content/company";
-import { GALLERY_MAX_ITEMS, shuffleGallery } from "@/domain/gallery";
+import { GalleryPlaceholder } from "@/components/GalleryPlaceholder";
+import { GALLERY_MAX_ITEMS, deckSlot, ringOffset, shuffleGallery } from "@/domain/gallery";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
 import { useLocale, useTranslations } from "next-intl";
@@ -12,6 +13,8 @@ import { useEffect, useRef, useState } from "react";
 const VIDEO_DWELL_MS = 15000;
 const RESUME_DELAY_MS = 1200;
 const DRAG_THRESHOLD = 70;
+const DECK_PERSPECTIVE = 900;
+const DECK_MS = 0.9;
 
 const arrowClass =
   "absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-gold text-lg text-espresso shadow-md transition hover:scale-105 active:scale-95";
@@ -24,9 +27,15 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
   const [items, setItems] = useState(() => allItems.slice(0, GALLERY_MAX_ITEMS));
   const [index, setIndex] = useState(0);
   const total = items.length;
+  // Neighbouring slides only show on wide screens and when motion is welcome;
+  // otherwise the gallery is a single card that crossfades.
+  const [motion, setMotion] = useState({ wide: false, reduced: false });
+  const neighbours = motion.wide && !motion.reduced;
 
   const stageRef = useRef<HTMLDivElement>(null);
   const paneRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const placeholderRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const deckReady = useRef(false);
   const indexRef = useRef(0);
   const pausedRef = useRef(false);
   const totalRef = useRef(total);
@@ -39,19 +48,9 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
   }, [allItems]);
 
   function goTo(newIndex: number) {
-    const prev = indexRef.current;
     const count = totalRef.current;
     const next = ((newIndex % count) + count) % count;
-    if (next === prev) return;
-
-    const outEl = paneRefs.current[prev];
-    const inEl = paneRefs.current[next];
-
-    if (outEl) gsap.to(outEl, { opacity: 0, duration: 0.6, ease: "power2.inOut", zIndex: 1 });
-    if (inEl) {
-      gsap.set(inEl, { opacity: 0, zIndex: 2 });
-      gsap.to(inEl, { opacity: 1, duration: 0.8, ease: "power2.out" });
-    }
+    if (next === indexRef.current) return;
     indexRef.current = next;
     setIndex(next);
   }
@@ -62,6 +61,43 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
       pausedRef.current = false;
     }, ms);
   }
+
+  useEffect(() => {
+    const wide = window.matchMedia("(min-width: 768px)");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setMotion({ wide: wide.matches, reduced: reduced.matches });
+    update();
+    wide.addEventListener("change", update);
+    reduced.addEventListener("change", update);
+    return () => {
+      wide.removeEventListener("change", update);
+      reduced.removeEventListener("change", update);
+    };
+  }, []);
+
+  // Lays the deck out: every slide moves to the transform for its distance
+  // from the current one. The first run snaps; later runs animate.
+  useEffect(() => {
+    const instant = !deckReady.current;
+    deckReady.current = true;
+    paneRefs.current.forEach((pane, i) => {
+      if (!pane) return;
+      const slot = deckSlot(ringOffset(i, index, total), neighbours);
+      gsap.set(pane, { zIndex: slot.zIndex, transformPerspective: DECK_PERSPECTIVE });
+      gsap.to(pane, {
+        xPercent: slot.x,
+        scale: slot.scale,
+        rotateY: slot.rotateY,
+        opacity: slot.opacity,
+        filter: `blur(${slot.blur}px)`,
+        duration: instant ? 0 : neighbours ? DECK_MS : 0.6,
+        ease: neighbours ? "back.out(1.15)" : "power2.inOut",
+        overwrite: "auto",
+      });
+      // A slide that is not playing shows its placeholder again.
+      if (slot.zIndex !== 10) gsap.set(placeholderRefs.current[i], { opacity: 1 });
+    });
+  }, [index, total, neighbours, items]);
 
   // Autoplay: reschedules on every slide change (manual or automatic), and
   // waits while the pointer is over the gallery or a drag is in progress.
@@ -105,7 +141,7 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
   }, []);
 
   return (
-    <section id="galeria" className="bg-cream py-24">
+    <section id="galeria" className="overflow-x-clip bg-cream py-24">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <div className="max-w-2xl">
           <p className="text-xs uppercase tracking-[0.35em] text-gold-dark">
@@ -129,23 +165,30 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
           <div className="relative mx-auto w-full max-w-[calc(min(80vh,720px)*9/16)]">
             <div
               ref={stageRef}
-              className="relative aspect-[9/16] w-full touch-pan-y overflow-hidden rounded-sm bg-espresso shadow-md"
+              className="relative aspect-[9/16] w-full touch-pan-y"
             >
               {items.map((item, i) => {
                 const alt =
                   (locale === "en" ? item.altEn : item.altEs) ??
                   t("alt", { event: t(`events.${item.event ?? "other"}`) });
+                const offset = ringOffset(i, index, total);
+                const clickable = neighbours && Math.abs(offset) === 1;
                 return (
                   <div
                     key={galleryItemKey(item)}
                     ref={(el) => {
                       paneRefs.current[i] = el;
                     }}
-                    className="absolute inset-0"
-                    style={{ opacity: i === 0 ? 1 : 0, zIndex: i === 0 ? 2 : 1 }}
+                    // Neighbours are decorative: hidden from assistive tech (they hold nothing focusable).
+                    aria-hidden={offset !== 0 || undefined}
+                    onClick={clickable ? () => goTo(i) : undefined}
+                    className={`absolute inset-0 overflow-hidden rounded-sm bg-espresso shadow-md ${
+                      clickable ? "cursor-pointer" : offset !== 0 ? "pointer-events-none" : ""
+                    }`}
+                    style={{ opacity: i === 0 ? 1 : 0, zIndex: i === 0 ? 10 : 1 }}
                   >
-                    {/* TikTok offers no public thumbnail, so inactive panes stay on the
-                        stage's dark background and only the active one loads a player. */}
+                    {/* TikTok offers no public thumbnail: every slide shows a branded card,
+                        and only the active one loads a player, which fades the card out. */}
                     {i === index && tiktokVideoId(item.url) && (
                       <iframe
                         title={alt}
@@ -153,8 +196,19 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
                         className="h-full w-full"
                         allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
                         allowFullScreen
+                        onLoad={() =>
+                          gsap.to(placeholderRefs.current[i], { opacity: 0, duration: 0.4, overwrite: "auto" })
+                        }
                       />
                     )}
+                    <div
+                      ref={(el) => {
+                        placeholderRefs.current[i] = el;
+                      }}
+                      className="pointer-events-none absolute inset-0"
+                    >
+                      <GalleryPlaceholder label={alt} />
+                    </div>
                   </div>
                 );
               })}
@@ -164,7 +218,7 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
               type="button"
               aria-label={t("prev")}
               onClick={() => goTo(index - 1)}
-              className={`${arrowClass} left-3 md:-left-16`}
+              className={`${arrowClass} left-3 ${neighbours ? "md:left-[-60%]" : "md:-left-16"} ${total < 2 ? "hidden" : ""}`}
             >
               ←
             </button>
@@ -172,7 +226,7 @@ export function Gallery({ items: allItems }: { items: GalleryItem[] }) {
               type="button"
               aria-label={t("next")}
               onClick={() => goTo(index + 1)}
-              className={`${arrowClass} right-3 md:-right-16`}
+              className={`${arrowClass} right-3 ${neighbours ? "md:right-[-60%]" : "md:-right-16"} ${total < 2 ? "hidden" : ""}`}
             >
               →
             </button>
