@@ -79,7 +79,7 @@ export function buildJsonLd(locale: AppLocale) {
       "@type": "Place",
       name,
     })),
-    sameAs: [COMPANY.social.facebook, COMPANY.social.instagram],
+    sameAs: [COMPANY.social.facebook, COMPANY.social.instagram, COMPANY.social.youtube],
     contactPoint: {
       "@type": "ContactPoint",
       telephone: COMPANY.phoneDisplay,

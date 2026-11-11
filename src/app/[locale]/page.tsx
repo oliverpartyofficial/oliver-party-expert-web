@@ -7,9 +7,6 @@ import { Location } from "@/components/Location";
 import { Services } from "@/components/Services";
 import { Testimonials } from "@/components/Testimonials";
 import { GALLERY_ITEMS } from "@/content/catalog";
-import { COMPANY } from "@/content/company";
-import { mergeGalleryItems } from "@/domain/gallery";
-import { fetchYoutubeShorts } from "@/infrastructure/youtube-feed";
 import { routing } from "@/i18n/routing";
 import { buildJsonLd } from "@/seo/jsonld";
 import { hasLocale } from "next-intl";
@@ -26,10 +23,6 @@ export default async function HomePage({
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const jsonLd = buildJsonLd(locale as AppLocale);
-  const galleryItems = mergeGalleryItems(
-    GALLERY_ITEMS,
-    await fetchYoutubeShorts(COMPANY.social.youtubeChannelId),
-  );
 
   return (
     <>
@@ -39,7 +32,7 @@ export default async function HomePage({
       />
       <Hero />
       <Services />
-      <Gallery items={galleryItems} />
+      <Gallery items={GALLERY_ITEMS} />
       <Testimonials />
       <About />
       <Location />

@@ -1,37 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { galleryItemKey, type GalleryItem } from "@/content/catalog";
-import { mergeGalleryItems, shuffleGallery } from "./gallery";
-
-const photo = (src: string): GalleryItem => ({ kind: "image", src });
-
-describe("mergeGalleryItems", () => {
-  it("appends channel videos after the catalog, using the title as alt", () => {
-    const merged = mergeGalleryItems([photo("/a.jpg")], [{ youtubeId: "vid00000001", title: "Boda" }]);
-    expect(merged).toEqual([
-      photo("/a.jpg"),
-      { kind: "youtube", youtubeId: "vid00000001", altEs: "Boda", altEn: "Boda" },
-    ]);
-  });
-
-  it("does not duplicate a video that is already in the catalog or repeated in the feed", () => {
-    const catalog: GalleryItem[] = [{ kind: "youtube", youtubeId: "vid00000001", event: "corporate" }];
-    const merged = mergeGalleryItems(catalog, [
-      { youtubeId: "vid00000001", title: "Same" },
-      { youtubeId: "vid00000002", title: "New" },
-      { youtubeId: "vid00000002", title: "New again" },
-    ]);
-    expect(merged.map(galleryItemKey)).toEqual([
-      "vid00000001",
-      "vid00000002",
-    ]);
-    expect(merged[0]).toBe(catalog[0]);
-  });
-
-  it("leaves alt unset for an untitled video so the generated alt is used", () => {
-    const [video] = mergeGalleryItems([], [{ youtubeId: "vid00000003", title: "" }]);
-    expect(video.altEs).toBeUndefined();
-  });
-});
+import { shuffleGallery } from "./gallery";
 
 describe("shuffleGallery", () => {
   const items = Array.from({ length: 30 }, (_, i) => i);

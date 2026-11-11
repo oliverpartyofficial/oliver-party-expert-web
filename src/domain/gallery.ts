@@ -1,25 +1,4 @@
-import { galleryItemKey, type GalleryItem } from "@/content/catalog";
-
 export const GALLERY_MAX_ITEMS = 20;
-
-/**
- * Catalog items first (photos + any hand-picked videos), then channel uploads
- * not already in the catalog. A video's YouTube title becomes its alt text.
- */
-export function mergeGalleryItems(
-  catalog: GalleryItem[],
-  channelVideos: { youtubeId: string; title: string }[],
-): GalleryItem[] {
-  const seen = new Set(catalog.map(galleryItemKey));
-  const fromChannel: GalleryItem[] = [];
-  for (const video of channelVideos) {
-    if (seen.has(video.youtubeId)) continue;
-    seen.add(video.youtubeId);
-    const alt = video.title || undefined;
-    fromChannel.push({ kind: "youtube", youtubeId: video.youtubeId, altEs: alt, altEn: alt });
-  }
-  return [...catalog, ...fromChannel];
-}
 
 /**
  * Keeps the first item fixed (it is what renders before hydration), shuffles

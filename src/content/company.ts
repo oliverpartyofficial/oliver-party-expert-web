@@ -23,9 +23,7 @@ export const COMPANY = {
     facebook: "https://www.facebook.com/olivergarciadjevents",
     instagram: "https://www.instagram.com/oliverpartyexpert/",
     instagramHandle: "@oliverpartyexpert",
-    // "UC…" id from YouTube Studio > Settings > Channel > Advanced settings.
-    // Its latest 15 shorts join the gallery automatically; empty = none.
-    youtubeChannelId: "",
+    youtube: "https://www.youtube.com/@OliverPartyExpert",
   },
   domain: "https://oliverpartyexpert.com",
   priceRange: "€€",

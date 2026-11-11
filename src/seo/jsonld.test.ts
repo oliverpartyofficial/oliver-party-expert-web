@@ -15,6 +15,7 @@ describe("buildJsonLd", () => {
     expect(business.sameAs).toEqual([
       "https://www.facebook.com/olivergarciadjevents",
       "https://www.instagram.com/oliverpartyexpert/",
+      "https://www.youtube.com/@OliverPartyExpert",
     ]);
     expect(business.logo).toMatch(/\/logo\.jpg$/);
     expect(business.image).toEqual(
